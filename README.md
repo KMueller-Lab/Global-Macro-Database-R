@@ -7,12 +7,7 @@
 
 [Link to paper 📄](https://www.globalmacrodata.com/research-paper.html)
 
-
-
 This repository complements paper, **Müller, Xu, Lehbib, and Chen (2025)**, which introduces a panel dataset of **46 macroeconomic variables across 243 countries** from historical records beginning in the year **1086** until **2024**, including projections through the year **2030**.
-
-
-
 
 ## Features
 
@@ -24,56 +19,61 @@ This repository complements paper, **Müller, Xu, Lehbib, and Chen (2025)**, whi
 - **Accessible Formats**: Provided in `.dta`, `.csv` and as **<a href="https://github.com/KMueller-Lab/Global-Macro-Database" target="_blank" rel="noopener noreferrer">Stata</a>
 /<a href="https://github.com/KMueller-Lab/Global-Macro-Database-Python" target="_blank" rel="noopener noreferrer">Python</a>/<a href="https://github.com/KMueller-Lab/Global-Macro-Database-R" target="_blank" rel="noopener noreferrer">R</a> package**.
 
-
-
 ## Data access
 
 <a href="https://www.globalmacrodata.com/data.html" target="_blank" rel="noopener noreferrer">Download via website</a>
 
 **R package:**
-```
-# Install devtools if not already installed
-install.packages("devtools")
-# Install the package from GitHub
+```R
+# Install from GitHub
 devtools::install_github("KMueller-Lab/Global-Macro-Database-R")
 ```
 
-**How to use (an example)**
+**How to use (examples)**
 ```R
-# Load the Package
 library(globalmacrodata)
 
-# Get preview data
+# Get data from latest available version
 df <- gmd()
 
-# Get data from latest available version
-df <- gmd(show_preview=FALSE)
-
 # Get data from a specific version
-df <- gmd(version="2025_01")
+df <- gmd(version = "2025_01")
 
 # Get data for a specific country
-df <- gmd(country="USA")
+df <- gmd(country = "USA")
 
 # Get data for multiple countries
-df <- gmd(country=c("USA", "CHN", "DEU"))
+df <- gmd(country = c("USA", "CHN", "DEU"))
 
 # Get specific variables
-df <- gmd(variables=c("rGDP", "infl", "unemp"))
+df <- gmd(variables = c("rGDP", "infl", "unemp"))
+
+# Get raw data for a single variable
+df <- gmd(variables = "rGDP", raw = TRUE)
+
+# List available variables and their descriptions
+gmd(vars = TRUE)
+
+# List available countries and their ISO codes
+gmd(iso = TRUE)
 
 # Combine parameters
-df <- gmd(version="2025_01", country=c("USA","CHN"), variables=c("rGDP", "unemp", "CPI"))
-
+df <- gmd(
+  version = "2025_01",
+  country = c("USA", "CHN"),
+  variables = c("rGDP", "unemp", "CPI")
+)
 ```
 
 ## Parameters
-- **version (numeric)**: Dataset version in format 'YYYY_MM' (e.g., '2025_01'). If None, the latest dataset is used.
-- **country (character or character vector)**: ISO3 country code(s) (e.g., "SGP" or c("MRT", "SGP")). If None, returns all countries.
-- **variables (character or character vector)**: List of variable codes to include (e.g., c("rGDP", "unemp")). If None, all variables are included.
-- **show_preview (logical)**: If True and no other parameters are provided, shows a preview.
+- **variables (character or vector)**: Variable code(s) to include (e.g., "rGDP" or c("rGDP", "unemp"))
+- **country (character or vector)**: ISO3 country code(s) (e.g., "SGP" or c("MRT", "SGP"))
+- **version (character)**: Dataset version in format 'YYYY_MM' (e.g., '2025_01'). If NULL or "current", uses the latest version
+- **raw (logical)**: If TRUE, download raw data for a single variable
+- **iso (logical)**: If TRUE, display list of available countries
+- **vars (logical)**: If TRUE, display list of available variables
 
 ## Release schedule 
-
 | Release Date | Details         |
 |--------------|-----------------|
 | 2025-01-30   | Initial release: 2025_01 |
@@ -81,7 +81,6 @@ df <- gmd(version="2025_01", country=c("USA","CHN"), variables=c("rGDP", "unemp"
 | 2025-07-01   | 2025_06         |
 | 2025-10-01   | 2025_09         |
 | 2026-01-01   | 2025_12         |
-
 
 ## Citation
 

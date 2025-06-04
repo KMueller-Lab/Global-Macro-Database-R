@@ -11,6 +11,9 @@ RoxygenNote: 7.3.2
 Imports: 
     httr,
     readr,
-    dplyr
+    dplyr,
+    haven
+Suggests:
+    testthat (>= 3.0.0)
 URL: https://github.com/Yangbo-Wang/global_macro_data_R
 BugReports: https://github.com/Yangbo-Wang/global_macro_data_R/issues

@@ -1,0 +1,46 @@
+# R specific files
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+.Rapp.history
+
+# R package specific
+*.Rproj
+.Rproj.user/
+.Rhistory
+.RData
+.Ruserdata
+.Rapp.history
+
+# R package build files
+*.tar.gz
+*.zip
+*.tgz
+*.Rcheck/
+
+# R package documentation
+man/*.Rd
+man/*.html
+
+# R package tests
+tests/testthat/_snaps/
+tests/testthat/testthat-problems.rds
+
+# R package vignettes
+vignettes/*.html
+vignettes/*.pdf
+
+# R package data
+inst/doc/
+inst/extdata/
+
+# R package development
+.Renviron
+.Rprofile
+.Renviron.local
+.Rprofile.local
+
+# OS specific files
+.DS_Store
+Thumbs.db

@@ -1,0 +1,13 @@
+^.*\.Rproj$
+^\.Rproj\.user$
+^cran-comments\.md$
+^README\.Rmd$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$
+^\.github$
+^codecov\.yml$
+^\.gitignore$
+^\.Rbuildignore$
+^\.Rhistory$
+^simple_test\.R$
