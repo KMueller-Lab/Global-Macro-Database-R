@@ -4,19 +4,23 @@
 \alias{gmd}
 \title{Get macroeconomic data from Global Macro Data}
 \usage{
-gmd(version = NULL, country = NULL, variables = NULL, show_preview = TRUE)
+gmd(variables = NULL, country = NULL, version = NULL, raw = FALSE, iso = FALSE, vars = FALSE)
 }
 \arguments{
-\item{version}{A string representing the dataset version (e.g., "2025_01").}
+\item{variables}{A character vector of variable names to include}
 
-\item{country}{A string or vector of ISO3 country codes (e.g., "USA" or c("CHN", "USA")).}
+\item{country}{A string representing the ISO3 country code}
 
-\item{variables}{A vector of variable names to include.}
+\item{version}{A string representing the dataset version (e.g., "2025_01")}
 
-\item{show_preview}{A boolean indicating whether to show a preview.}
+\item{raw}{A logical indicating whether to return raw data}
+
+\item{iso}{A logical indicating whether to show ISO country codes}
+
+\item{vars}{A logical indicating whether to show available variables}
 }
 \value{
-A dataframe containing the requested macroeconomic data.
+A dataframe containing the requested macroeconomic data
 }
 \description{
 Get macroeconomic data from Global Macro Data
