@@ -17,6 +17,8 @@ gmd <- function(variables = NULL, country = NULL, version = NULL,
     if (!requireNamespace(pkg, quietly = TRUE)) {
       stop(sprintf("Package '%s' is required. Please install it using install.packages('%s')", pkg, pkg))
     }
+    # Actually load the package
+    library(pkg, character.only = TRUE)
   }
   
   # Base URL
