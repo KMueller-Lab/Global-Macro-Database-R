@@ -2,8 +2,12 @@ Package: globalmacrodata
 Title: Global Macro Database R Package
 Version: 1.0.0
 Authors@R: 
-    person("Yangbo", "Wang", email = "wangyangbo@ruc.edu.cn", role = c("aut", "cre"))
-Description: This R package can download the data from Müller, Xu, Lehbib, and Chen (2025), which introduces a panel dataset of 46 macroeconomic variables across 243 countries from historical records beginning in the year 1086 until 2024, including projections through the year 2030.
+    person("Karsten", "Müller", role = c("aut", "cre"),
+           email = "karsten.mueller@nus.edu.sg"),
+    person("Chenzi", "Xu", role = "aut"),
+    person("Mohamed", "Lehbib", role = "aut"),
+    person("Ziliang", "Chen", role = "aut")
+Description: This R package provides access to the Global Macro Database from Müller, Xu, Lehbib, and Chen (2025), which introduces a panel dataset of 46 macroeconomic variables across 243 countries from historical records beginning in the year 1086 until 2024, including projections through the year 2030.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
@@ -15,5 +19,5 @@ Imports:
     haven
 Suggests:
     testthat (>= 3.0.0)
-URL: https://github.com/Yangbo-Wang/global_macro_data_R
-BugReports: https://github.com/Yangbo-Wang/global_macro_data_R/issues
+URL: https://github.com/KMueller-Lab/Global-Macro-Database-R
+BugReports: https://github.com/KMueller-Lab/Global-Macro-Database-R/issues
