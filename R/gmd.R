@@ -9,7 +9,7 @@
 #' @return A dataframe containing the requested macroeconomic data
 #' @export
 gmd <- function(variables = NULL, country = NULL, version = NULL, 
-                raw = FALSE, iso = FALSE, vars = FALSE) {
+                raw = FALSE) {
   
   # Required packages
   required_packages <- c("httr", "readr", "dplyr")
@@ -161,6 +161,8 @@ gmd <- function(variables = NULL, country = NULL, version = NULL,
   
   return(df)
 }
+
+#' @export
 list_iso_vars <- function(iso = FALSE, vars = FALSE){
   # Base URL
   base_url <- "https://www.globalmacrodata.com"
