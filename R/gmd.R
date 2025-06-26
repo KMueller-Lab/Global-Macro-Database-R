@@ -162,6 +162,7 @@ gmd <- function(variables = NULL, country = NULL, version = NULL,
   return(df)
 }
 
+#' @return
 #' @export
 list_iso_vars <- function(iso = FALSE, vars = FALSE){
   # Base URL
@@ -191,22 +192,16 @@ list_iso_vars <- function(iso = FALSE, vars = FALSE){
   
   # Handle ISO listing
   if (iso) {
-    message("Country and territories", strrep(" ", 30), "Code")
-    message(strrep("-", 60))
-    for (i in seq_len(nrow(country_mapping))) {
-      message(sprintf("%-45s %s", country_mapping$countryname[i], country_mapping$ISO3[i]))
-    }
-    message(strrep("-", 60))
-    return(invisible(NULL))
+    result_df <- data.frame(
+      "Country and territories" = country_mapping$countryname,
+      "Code" = country_mapping$ISO3,
+      stringsAsFactors = FALSE
+    )
+    return(result_df)
   }
   
   # Handle variable listing
   if (vars) {
-    message("\nAvailable variables:\n")
-    message(strrep("-", 90))
-    message(sprintf("%-15s %s", "Variable", "Description"))
-    message(strrep("-", 90))
-    
     var_descriptions <- list(
       "nGDP" = "Nominal Gross Domestic Product",
       "rGDP" = "Real Gross Domestic Product, in 2010 prices",
@@ -256,10 +251,11 @@ list_iso_vars <- function(iso = FALSE, vars = FALSE){
       "BankingCrisis" = "Banking Crisis"
     )
     
-    for (var in names(var_descriptions)) {
-      message(sprintf("%-15s %s", var, var_descriptions[[var]]))
-    }
-    message(strrep("-", 90))
-    return(invisible(NULL))
+    variables_df <- data.frame(
+      Variable = names(var_descriptions),
+      Description = as.character(var_descriptions),
+      stringsAsFactors = FALSE
+    )
+    return(variables_df)
   }
 }
