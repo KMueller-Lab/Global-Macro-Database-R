@@ -3,3 +3,4 @@
 export(gmd)
 export(get_available_versions)
 export(get_current_version)
+export(list_iso_vars)
