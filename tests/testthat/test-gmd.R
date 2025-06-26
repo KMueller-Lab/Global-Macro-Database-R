@@ -66,8 +66,7 @@ test_that("list variables works", {
   skip_on_cran()
   skip_if_offline()
   
-  output <- capture.output(gmd(vars = TRUE))
-  expect_true(any(grepl("Available variables", output)))
+  expect_message(gmd(vars = TRUE), regexp = "Available variables")
 })
 
 test_that("list countries works", {
@@ -75,8 +74,8 @@ test_that("list countries works", {
   skip_if_offline()
   
   output <- capture.output(gmd(iso = TRUE))
-  expect_true(any(grepl("Country and territories", output)))
-  expect_true(any(grepl("Code", output)))
+  expect_message(gmd(iso = TRUE), regexp = "Country and territories")
+  expect_message(gmd(iso = TRUE), regexp = "Code")
 })
 
 test_that("combined parameters work", {

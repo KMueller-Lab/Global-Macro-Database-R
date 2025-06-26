@@ -37,7 +37,8 @@ gmd <- function(variables = NULL, country = NULL, version = NULL,
   }
   
   versions_df <- readr::read_csv(httr::content(versions_response, as = "text"), show_col_types = FALSE)
-  current_version <- versions_df$versions[1]
+  
+  current_version <- versions_df$versions[nrow(versions_df)]
   available_versions <- versions_df$versions
   
   # Handle version option
@@ -68,7 +69,7 @@ gmd <- function(variables = NULL, country = NULL, version = NULL,
     message("Country and territories", strrep(" ", 30), "Code")
     message(strrep("-", 60))
     for (i in seq_len(nrow(country_mapping))) {
-      message(sprintf("%-45s %s", country_mapping$country[i], country_mapping$ISO3[i]))
+      message(sprintf("%-45s %s", country_mapping$countryname[i], country_mapping$ISO3[i]))
     }
     message(strrep("-", 60))
     return(invisible(NULL))
@@ -234,3 +235,114 @@ gmd <- function(variables = NULL, country = NULL, version = NULL,
   
   return(df)
 }
+
+list_country_vars <- function(iso = FALSE, vars = FALSE){
+  # Required packages
+  required_packages <- c("httr", "readr", "dplyr")
+  for (pkg in required_packages) {
+    if (!requireNamespace(pkg, quietly = TRUE)) {
+      stop(sprintf("Package '%s' is required. Please install it using install.packages('%s')", pkg, pkg))
+    }
+    # Actually load the package
+    library(pkg, character.only = TRUE)
+  }
+  
+  # Base URL
+  base_url <- "https://www.globalmacrodata.com"
+  
+  # Display package information
+  message("Global Macro Database by Müller et. al (2025)")
+  message("Website: https://www.globalmacrodata.com")
+  message("")
+  
+  # Load country mapping
+  isomapping_path <- system.file("isomapping.csv", package = "globalmacrodata")
+  if (!file.exists(isomapping_path)) {
+    stop("Error: isomapping.csv not found in package installation")
+  }
+  country_mapping <- readr::read_csv(isomapping_path, show_col_types = FALSE)
+  
+  # Warnimng message
+  if (iso & vars) {
+    warning("You can only show either countries or variables, not both!")
+    return(invisible(NULL))
+  }
+  
+  # Handle ISO listing
+  if (iso) {
+    message("Country and territories", strrep(" ", 30), "Code")
+    message(strrep("-", 60))
+    for (i in seq_len(nrow(country_mapping))) {
+      message(sprintf("%-45s %s", country_mapping$countryname[i], country_mapping$ISO3[i]))
+    }
+    message(strrep("-", 60))
+    return(invisible(NULL))
+  }
+  
+  # Handle variable listing
+  if (vars) {
+    message("\nAvailable variables:\n")
+    message(strrep("-", 90))
+    message(sprintf("%-15s %s", "Variable", "Description"))
+    message(strrep("-", 90))
+    
+    var_descriptions <- list(
+      "nGDP" = "Nominal Gross Domestic Product",
+      "rGDP" = "Real Gross Domestic Product, in 2010 prices",
+      "rGDP_pc" = "Real Gross Domestic Product per Capita",
+      "rGDP_USD" = "Real Gross Domestic Product in USD",
+      "deflator" = "GDP deflator",
+      "cons" = "Total Consumption",
+      "rcons" = "Real Total Consumption",
+      "cons_GDP" = "Total Consumption as % of GDP",
+      "inv" = "Total Investment",
+      "inv_GDP" = "Total Investment as % of GDP",
+      "finv" = "Fixed Investment",
+      "finv_GDP" = "Fixed Investment as % of GDP",
+      "exports" = "Total Exports",
+      "exports_GDP" = "Total Exports as % of GDP",
+      "imports" = "Total Imports",
+      "imports_GDP" = "Total Imports as % of GDP",
+      "CA" = "Current Account Balance",
+      "CA_GDP" = "Current Account Balance as % of GDP",
+      "USDfx" = "Exchange Rate against USD",
+      "REER" = "Real Effective Exchange Rate, 2010 = 100",
+      "govexp" = "Government Expenditure",
+      "govexp_GDP" = "Government Expenditure as % of GDP",
+      "govrev" = "Government Revenue",
+      "govrev_GDP" = "Government Revenue as % of GDP",
+      "govtax" = "Government Tax Revenue",
+      "govtax_GDP" = "Government Tax Revenue as % of GDP",
+      "govdef" = "Government Deficit",
+      "govdef_GDP" = "Government Deficit as % of GDP",
+      "govdebt" = "Government Debt",
+      "govdebt_GDP" = "Government Debt as % of GDP",
+      "HPI" = "House Price Index",
+      "CPI" = "Consumer Price Index, 2010 = 100",
+      "infl" = "Inflation Rate",
+      "pop" = "Population",
+      "unemp" = "Unemployment Rate",
+      "strate" = "Short-term Interest Rate",
+      "ltrate" = "Long-term Interest Rate",
+      "cbrate" = "Central Bank Policy Rate",
+      "M0" = "M0 Money Supply",
+      "M1" = "M1 Money Supply",
+      "M2" = "M2 Money Supply",
+      "M3" = "M3 Money Supply",
+      "M4" = "M4 Money Supply",
+      "SovDebtCrisis" = "Sovereign Debt Crisis",
+      "CurrencyCrisis" = "Currency Crisis",
+      "BankingCrisis" = "Banking Crisis"
+    )
+    
+    for (var in names(var_descriptions)) {
+      message(sprintf("%-15s %s", var, var_descriptions[[var]]))
+    }
+    message(strrep("-", 90))
+    return(invisible(NULL))
+  }
+}
+
+df <- gmd(variables = "rGDP", country = "FRA")
+df <- gmd(iso = TRUE)
+list_country_vars(vars = TRUE)
