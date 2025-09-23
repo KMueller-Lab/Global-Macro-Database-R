@@ -193,7 +193,7 @@ list_iso_vars <- function(iso = FALSE, vars = FALSE){
   # Handle ISO listing
   if (iso) {
     result_df <- data.frame(
-      "Country and territories" = country_mapping$countryname,
+      "Country_and_territories" = country_mapping$countryname,
       "Code" = country_mapping$ISO3,
       stringsAsFactors = FALSE
     )
@@ -202,6 +202,9 @@ list_iso_vars <- function(iso = FALSE, vars = FALSE){
   
   # Handle variable listing
   if (vars) {
+    message("\nAvailable variables:\n")
+    message(strrep("-", 90))
+    
     var_descriptions <- list(
       "nGDP" = "Nominal Gross Domestic Product",
       "rGDP" = "Real Gross Domestic Product, in 2010 prices",
