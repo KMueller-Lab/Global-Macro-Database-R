@@ -52,10 +52,16 @@ df <- gmd(variables = c("rGDP", "infl", "unemp"))
 df <- gmd(variables = "rGDP", raw = TRUE)
 
 # List available variables and their descriptions
-df <- list_iso_vars(vars = TRUE)
+gmd(vars = TRUE)
+
+# Get available variables and their descriptions
+df <- gmd(vars = TRUE)
 
 # List available countries and their ISO codes
-df <- list_iso_vars(iso = TRUE)
+gmd(iso = TRUE)
+
+# Get available countries and their ISO codes
+df <- gmd(iso = TRUE)
 
 # Combine parameters
 df <- gmd(

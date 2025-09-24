@@ -9,7 +9,7 @@
 #' @return A dataframe containing the requested macroeconomic data
 #' @export
 gmd <- function(variables = NULL, country = NULL, version = NULL, 
-                raw = FALSE) {
+                raw = FALSE, iso = FALSE, vars = FALSE) {
   
   # Required packages
   required_packages <- c("httr", "readr", "dplyr")
@@ -28,6 +28,99 @@ gmd <- function(variables = NULL, country = NULL, version = NULL,
   message("Global Macro Database by Müller et. al (2025)")
   message("Website: https://www.globalmacrodata.com")
   message("")
+  
+  # Load country mapping
+  isomapping_path <- system.file("isomapping.csv", package = "globalmacrodata")
+  if (!file.exists(isomapping_path)) {
+    stop("Error: isomapping.csv not found in package installation")
+  }
+  country_mapping <- readr::read_csv(isomapping_path, show_col_types = FALSE)
+  
+  # Warnimng message
+  if (iso && vars) {
+    warning("You can only show either countries or variables, not both!")
+    return(invisible(NULL))
+  }
+  
+  if ((iso || vars) && 
+      (!is.null(variables) || !is.null(country) || !is.null(version) || raw != FALSE)) {
+    warning("When iso = TRUE or vars = TRUE, should not enter other inputs (variables, country, version, raw).")
+  }
+  
+  # Handle ISO listing
+  if (iso) {
+    df <- data.frame(
+      "Country_and_territories" = country_mapping$countryname,
+      "Code" = country_mapping$ISO3,
+      stringsAsFactors = FALSE
+    )
+
+    message("Loading countries list")
+
+    return(df)
+  }
+  
+  # Handle variable listing
+  if (vars) {
+    
+    var_descriptions <- list(
+      "nGDP" = "Nominal Gross Domestic Product",
+      "rGDP" = "Real Gross Domestic Product, in 2010 prices",
+      "rGDP_pc" = "Real Gross Domestic Product per Capita",
+      "rGDP_USD" = "Real Gross Domestic Product in USD",
+      "deflator" = "GDP deflator",
+      "cons" = "Total Consumption",
+      "rcons" = "Real Total Consumption",
+      "cons_GDP" = "Total Consumption as % of GDP",
+      "inv" = "Total Investment",
+      "inv_GDP" = "Total Investment as % of GDP",
+      "finv" = "Fixed Investment",
+      "finv_GDP" = "Fixed Investment as % of GDP",
+      "exports" = "Total Exports",
+      "exports_GDP" = "Total Exports as % of GDP",
+      "imports" = "Total Imports",
+      "imports_GDP" = "Total Imports as % of GDP",
+      "CA" = "Current Account Balance",
+      "CA_GDP" = "Current Account Balance as % of GDP",
+      "USDfx" = "Exchange Rate against USD",
+      "REER" = "Real Effective Exchange Rate, 2010 = 100",
+      "govexp" = "Government Expenditure",
+      "govexp_GDP" = "Government Expenditure as % of GDP",
+      "govrev" = "Government Revenue",
+      "govrev_GDP" = "Government Revenue as % of GDP",
+      "govtax" = "Government Tax Revenue",
+      "govtax_GDP" = "Government Tax Revenue as % of GDP",
+      "govdef" = "Government Deficit",
+      "govdef_GDP" = "Government Deficit as % of GDP",
+      "govdebt" = "Government Debt",
+      "govdebt_GDP" = "Government Debt as % of GDP",
+      "HPI" = "House Price Index",
+      "CPI" = "Consumer Price Index, 2010 = 100",
+      "infl" = "Inflation Rate",
+      "pop" = "Population",
+      "unemp" = "Unemployment Rate",
+      "strate" = "Short-term Interest Rate",
+      "ltrate" = "Long-term Interest Rate",
+      "cbrate" = "Central Bank Policy Rate",
+      "M0" = "M0 Money Supply",
+      "M1" = "M1 Money Supply",
+      "M2" = "M2 Money Supply",
+      "M3" = "M3 Money Supply",
+      "M4" = "M4 Money Supply",
+      "SovDebtCrisis" = "Sovereign Debt Crisis",
+      "CurrencyCrisis" = "Currency Crisis",
+      "BankingCrisis" = "Banking Crisis"
+    )
+    
+    df <- data.frame(
+      Variable = names(var_descriptions),
+      Description = as.character(var_descriptions),
+      stringsAsFactors = FALSE
+    )
+    class(df) <- c("gmd_vars", class(df))
+    message("Loading variables list")
+    return(df)
+  }
   
   # Get current version
   versions_url <- "https://raw.githubusercontent.com/KMueller-Lab/Global-Macro-Database/refs/heads/main/data/helpers/versions.csv"
@@ -127,7 +220,7 @@ gmd <- function(variables = NULL, country = NULL, version = NULL,
   
   # Select variables if specified
   if (!is.null(variables)) {
-    required_cols <- c("ISO3", "countryname", "year")
+    required_cols <- c("ISO3", "countryname", "year", "id")
     available_vars <- intersect(variables, colnames(df))
     
     if (length(available_vars) == 0) {
@@ -150,10 +243,11 @@ gmd <- function(variables = NULL, country = NULL, version = NULL,
   # Display final dataset dimensions
   if (nrow(df) > 0) {
     if (raw) {
-      n_sources <- ncol(df) - 8
+      n_sources <- 1
       message(sprintf("Final dataset: %d observations of %d sources", nrow(df), n_sources))
     } else {
-      message(sprintf("Final dataset: %d observations of %d variables", nrow(df), ncol(df)))
+      n_sources <- ncol(df) - 4
+      message(sprintf("Final dataset: %d observations of %d variables", nrow(df), n_sources))
     }
     
     message(sprintf("Version: %s", current_version))
@@ -162,103 +256,10 @@ gmd <- function(variables = NULL, country = NULL, version = NULL,
   return(df)
 }
 
-#' @return
-#' @export
-list_iso_vars <- function(iso = FALSE, vars = FALSE){
-  # Base URL
-  base_url <- "https://www.globalmacrodata.com"
-  
-  # Display package information
-  message("Global Macro Database by Müller et. al (2025)")
-  message("Website: https://www.globalmacrodata.com")
-  message("")
-  
-  # Load country mapping
-  isomapping_path <- system.file("isomapping.csv", package = "globalmacrodata")
-  if (!file.exists(isomapping_path)) {
-    stop("Error: isomapping.csv not found in package installation")
-  }
-  country_mapping <- readr::read_csv(isomapping_path, show_col_types = FALSE)
-  
-  # Warnimng message
-  if (iso && vars) {
-    warning("You can only show either countries or variables, not both!")
-    return(invisible(NULL))
-  }
-  if (!iso && !vars) {
-    warning("You must set either iso or vars to TRUE to display information!")
-    return(invisible(NULL))
-  }
-  
-  # Handle ISO listing
-  if (iso) {
-    result_df <- data.frame(
-      "Country_and_territories" = country_mapping$countryname,
-      "Code" = country_mapping$ISO3,
-      stringsAsFactors = FALSE
-    )
-    return(result_df)
-  }
-  
-  # Handle variable listing
-  if (vars) {
-    message("\nAvailable variables:\n")
-    message(strrep("-", 90))
-    
-    var_descriptions <- list(
-      "nGDP" = "Nominal Gross Domestic Product",
-      "rGDP" = "Real Gross Domestic Product, in 2010 prices",
-      "rGDP_pc" = "Real Gross Domestic Product per Capita",
-      "rGDP_USD" = "Real Gross Domestic Product in USD",
-      "deflator" = "GDP deflator",
-      "cons" = "Total Consumption",
-      "rcons" = "Real Total Consumption",
-      "cons_GDP" = "Total Consumption as % of GDP",
-      "inv" = "Total Investment",
-      "inv_GDP" = "Total Investment as % of GDP",
-      "finv" = "Fixed Investment",
-      "finv_GDP" = "Fixed Investment as % of GDP",
-      "exports" = "Total Exports",
-      "exports_GDP" = "Total Exports as % of GDP",
-      "imports" = "Total Imports",
-      "imports_GDP" = "Total Imports as % of GDP",
-      "CA" = "Current Account Balance",
-      "CA_GDP" = "Current Account Balance as % of GDP",
-      "USDfx" = "Exchange Rate against USD",
-      "REER" = "Real Effective Exchange Rate, 2010 = 100",
-      "govexp" = "Government Expenditure",
-      "govexp_GDP" = "Government Expenditure as % of GDP",
-      "govrev" = "Government Revenue",
-      "govrev_GDP" = "Government Revenue as % of GDP",
-      "govtax" = "Government Tax Revenue",
-      "govtax_GDP" = "Government Tax Revenue as % of GDP",
-      "govdef" = "Government Deficit",
-      "govdef_GDP" = "Government Deficit as % of GDP",
-      "govdebt" = "Government Debt",
-      "govdebt_GDP" = "Government Debt as % of GDP",
-      "HPI" = "House Price Index",
-      "CPI" = "Consumer Price Index, 2010 = 100",
-      "infl" = "Inflation Rate",
-      "pop" = "Population",
-      "unemp" = "Unemployment Rate",
-      "strate" = "Short-term Interest Rate",
-      "ltrate" = "Long-term Interest Rate",
-      "cbrate" = "Central Bank Policy Rate",
-      "M0" = "M0 Money Supply",
-      "M1" = "M1 Money Supply",
-      "M2" = "M2 Money Supply",
-      "M3" = "M3 Money Supply",
-      "M4" = "M4 Money Supply",
-      "SovDebtCrisis" = "Sovereign Debt Crisis",
-      "CurrencyCrisis" = "Currency Crisis",
-      "BankingCrisis" = "Banking Crisis"
-    )
-    
-    variables_df <- data.frame(
-      Variable = names(var_descriptions),
-      Description = as.character(var_descriptions),
-      stringsAsFactors = FALSE
-    )
-    return(variables_df)
-  }
+# Print rule
+print.gmd_vars <- function(x, ...) {
+  message("\nAvailable variables:\n")
+  message(strrep("-", 90))
+  NextMethod("print")
+  invisible(x)
 }
