@@ -29,33 +29,6 @@ gmd <- function(variables = NULL, country = NULL, version = NULL,
   message("Website: https://www.globalmacrodata.com")
   message("")
   
-  # Get current version
-  versions_url <- "https://raw.githubusercontent.com/KMueller-Lab/Global-Macro-Database/refs/heads/main/data/helpers/versions.csv"
-  versions_response <- httr::GET(versions_url)
-  if (httr::status_code(versions_response) != 200) {
-    stop("Error: Unable to access version information. Check internet connection.")
-  }
-  
-  versions_df <- readr::read_csv(httr::content(versions_response, as = "text"), show_col_types = FALSE)
-  current_version <- versions_df$versions[1]
-  available_versions <- versions_df$versions
-  
-  # Handle version option
-  if (!is.null(version)) {
-    if (tolower(version) == "current") {
-      data_url <- paste0(base_url, "/GMD_", current_version, ".dta")
-    } else {
-      if (!version %in% available_versions) {
-        stop(sprintf("Error: %s is not valid\nAvailable versions are: %s\nThe current version is: %s",
-                    version, paste(available_versions, collapse = ", "), current_version))
-      }
-      data_url <- paste0(base_url, "/GMD_", version, ".dta")
-      current_version <- version
-    }
-  } else {
-    data_url <- paste0(base_url, "/GMD_", current_version, ".dta")
-  }
-  
   # Load country mapping
   isomapping_path <- system.file("isomapping.csv", package = "globalmacrodata")
   if (!file.exists(isomapping_path)) {
@@ -63,23 +36,32 @@ gmd <- function(variables = NULL, country = NULL, version = NULL,
   }
   country_mapping <- readr::read_csv(isomapping_path, show_col_types = FALSE)
   
+  # Warnimng message
+  if (iso && vars) {
+    warning("You can only show either countries or variables, not both!")
+    return(invisible(NULL))
+  }
+  
+  if ((iso || vars) && 
+      (!is.null(variables) || !is.null(country) || !is.null(version) || raw != FALSE)) {
+    warning("When iso = TRUE or vars = TRUE, should not enter other inputs (variables, country, version, raw).")
+  }
+  
   # Handle ISO listing
   if (iso) {
-    message("Country and territories", strrep(" ", 30), "Code")
-    message(strrep("-", 60))
-    for (i in seq_len(nrow(country_mapping))) {
-      message(sprintf("%-45s %s", country_mapping$country[i], country_mapping$ISO3[i]))
-    }
-    message(strrep("-", 60))
-    return(invisible(NULL))
+    df <- data.frame(
+      "Country_and_territories" = country_mapping$countryname,
+      "Code" = country_mapping$ISO3,
+      stringsAsFactors = FALSE
+    )
+
+    message("Loading countries list")
+
+    return(df)
   }
   
   # Handle variable listing
   if (vars) {
-    message("\nAvailable variables:\n")
-    message(strrep("-", 90))
-    message(sprintf("%-15s %s", "Variable", "Description"))
-    message(strrep("-", 90))
     
     var_descriptions <- list(
       "nGDP" = "Nominal Gross Domestic Product",
@@ -130,12 +112,50 @@ gmd <- function(variables = NULL, country = NULL, version = NULL,
       "BankingCrisis" = "Banking Crisis"
     )
     
-    for (var in names(var_descriptions)) {
-      message(sprintf("%-15s %s", var, var_descriptions[[var]]))
-    }
-    message(strrep("-", 90))
-    return(invisible(NULL))
+    df <- data.frame(
+      Variable = names(var_descriptions),
+      Description = as.character(var_descriptions),
+      stringsAsFactors = FALSE
+    )
+    class(df) <- c("gmd_vars", class(df))
+    message("Loading variables list")
+    return(df)
   }
+  
+  # Get current version
+  versions_url <- "https://raw.githubusercontent.com/KMueller-Lab/Global-Macro-Database/refs/heads/main/data/helpers/versions.csv"
+  versions_response <- httr::GET(versions_url)
+  if (httr::status_code(versions_response) != 200) {
+    stop("Error: Unable to access version information. Check internet connection.")
+  }
+  
+  versions_df <- readr::read_csv(httr::content(versions_response, as = "text"), show_col_types = FALSE)
+  
+  current_version <- versions_df$versions[nrow(versions_df)]
+  available_versions <- versions_df$versions
+  
+  # Handle version option
+  if (!is.null(version)) {
+    if (tolower(version) == "current") {
+      data_url <- paste0(base_url, "/GMD_", current_version, ".dta")
+    } else {
+      if (!version %in% available_versions) {
+        stop(sprintf("Error: %s is not valid\nAvailable versions are: %s\nThe current version is: %s",
+                    version, paste(available_versions, collapse = ", "), current_version))
+      }
+      data_url <- paste0(base_url, "/GMD_", version, ".dta")
+      current_version <- version
+    }
+  } else {
+    data_url <- paste0(base_url, "/GMD_", current_version, ".dta")
+  }
+  
+  # Load country mapping
+  isomapping_path <- system.file("isomapping.csv", package = "globalmacrodata")
+  if (!file.exists(isomapping_path)) {
+    stop("Error: isomapping.csv not found in package installation")
+  }
+  country_mapping <- readr::read_csv(isomapping_path, show_col_types = FALSE)
   
   # Validate variables if specified
   if (!is.null(variables)) {
@@ -149,7 +169,7 @@ gmd <- function(variables = NULL, country = NULL, version = NULL,
     
     invalid_vars <- setdiff(variables, valid_vars)
     if (length(invalid_vars) > 0) {
-      stop(sprintf("Invalid variable code(s): %s\n\nTo see the list of valid variable codes, use: gmd(vars = TRUE)",
+      stop(sprintf("Invalid variable code(s): %s\n\nTo see the list of valid variable codes, use: list_iso_vars(vars = TRUE)",
                   paste(invalid_vars, collapse = ", ")))
     }
   }
@@ -190,7 +210,7 @@ gmd <- function(variables = NULL, country = NULL, version = NULL,
     country <- toupper(country)
     invalid_countries <- country[!country %in% country_mapping$ISO3]
     if (length(invalid_countries) > 0) {
-      stop(sprintf("Error: Invalid country code(s): %s\n\nTo see the list of valid country codes, use: gmd(iso = TRUE)",
+      stop(sprintf("Error: Invalid country code(s): %s\n\nTo see the list of valid country codes, use: list_iso_vars(iso = TRUE)",
                   paste(invalid_countries, collapse = ", ")))
     }
     
@@ -200,7 +220,7 @@ gmd <- function(variables = NULL, country = NULL, version = NULL,
   
   # Select variables if specified
   if (!is.null(variables)) {
-    required_cols <- c("ISO3", "countryname", "year")
+    required_cols <- c("ISO3", "countryname", "year", "id")
     available_vars <- intersect(variables, colnames(df))
     
     if (length(available_vars) == 0) {
@@ -223,14 +243,23 @@ gmd <- function(variables = NULL, country = NULL, version = NULL,
   # Display final dataset dimensions
   if (nrow(df) > 0) {
     if (raw) {
-      n_sources <- ncol(df) - 8
+      n_sources <- 1
       message(sprintf("Final dataset: %d observations of %d sources", nrow(df), n_sources))
     } else {
-      message(sprintf("Final dataset: %d observations of %d variables", nrow(df), ncol(df)))
+      n_sources <- ncol(df) - 4
+      message(sprintf("Final dataset: %d observations of %d variables", nrow(df), n_sources))
     }
     
     message(sprintf("Version: %s", current_version))
   }
   
   return(df)
+}
+
+# Print rule
+print.gmd_vars <- function(x, ...) {
+  message("\nAvailable variables:\n")
+  message(strrep("-", 90))
+  NextMethod("print")
+  invisible(x)
 }
