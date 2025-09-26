@@ -234,8 +234,7 @@ gmd <- function(variables = NULL, country = NULL, version = NULL,
   if (raw) {
       df <- df %>%
       dplyr::arrange(countryname, year)
-  }
-  else {
+  } else {
       df <- df %>%
       dplyr::select(ISO3, countryname, year, dplyr::everything()) %>%
       dplyr::arrange(countryname, year)
@@ -269,4 +268,5 @@ print.gmd_vars <- function(x, ...) {
   NextMethod("print")
   invisible(x)
 }
+
 
