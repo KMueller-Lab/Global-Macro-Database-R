@@ -231,9 +231,15 @@ gmd <- function(variables = NULL, country = NULL, version = NULL,
   }
   
   # Order and sort data
-  df <- df %>%
-    dplyr::select(ISO3, countryname, year, dplyr::everything()) %>%
-    dplyr::arrange(countryname, year)
+  if (raw) {
+      df <- df %>%
+      dplyr::arrange(countryname, year)
+  }
+  else {
+      df <- df %>%
+      dplyr::select(ISO3, countryname, year, dplyr::everything()) %>%
+      dplyr::arrange(countryname, year)
+  }
   
   # Check if we have any data
   if (nrow(df) == 0) {
@@ -263,3 +269,4 @@ print.gmd_vars <- function(x, ...) {
   NextMethod("print")
   invisible(x)
 }
+
