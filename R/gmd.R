@@ -219,15 +219,17 @@ gmd <- function(variables = NULL, country = NULL, version = NULL,
   }
   
   # Select variables if specified
-  if (!is.null(variables)) {
-    required_cols <- c("ISO3", "countryname", "year", "id")
-    available_vars <- intersect(variables, colnames(df))
-    
-    if (length(available_vars) == 0) {
-      warning("None of the requested variables are available in the dataset.")
+  if(!raw){
+    if (!is.null(variables)) {
+      required_cols <- c("ISO3", "countryname", "year", "id")
+      available_vars <- intersect(variables, colnames(df))
+      
+      if (length(available_vars) == 0) {
+        warning("None of the requested variables are available in the dataset.")
+      }
+      
+      df <- df %>% dplyr::select(dplyr::all_of(c(required_cols, available_vars)))
     }
-    
-    df <- df %>% dplyr::select(dplyr::all_of(c(required_cols, available_vars)))
   }
   
   # Order and sort data
@@ -248,7 +250,7 @@ gmd <- function(variables = NULL, country = NULL, version = NULL,
   # Display final dataset dimensions
   if (nrow(df) > 0) {
     if (raw) {
-      n_sources <- 1
+      n_sources <- ncol(df) - 7
       message(sprintf("Final dataset: %d observations of %d sources", nrow(df), n_sources))
     } else {
       n_sources <- ncol(df) - 4
