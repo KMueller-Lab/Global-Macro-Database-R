@@ -37,7 +37,7 @@ library(globalmacrodata)
 df <- gmd()
 
 # Get data from a specific version
-df <- gmd(version = "2025_01")
+df <- gmd(version = "2026_01")
 
 # List all available versions
 gmd(version = "list")
@@ -80,7 +80,7 @@ df <- gmd(cite = "load")
 
 # Combine parameters
 df <- gmd(
-  version = "2025_01",
+  version = "2026_01",
   country = c("USA", "CHN"),
   variables = c("rGDP", "unemp", "CPI")
 )

@@ -178,7 +178,7 @@ gmd <- function(variables = NULL, country = NULL, version = NULL,
       message("Imported the list of sources to cite.")
       return(cite_df)
     } else {
-      matched <- cite_df[tolower(cite_df$source) == tolower(cite), ]
+      matched <- cite_df[tolower(cite_df$source_name) == tolower(cite), ]
       if (nrow(matched) == 0) {
         stop(sprintf("Source '%s' does not exist.\nTo load the list of sources to cite, use: gmd(cite = 'load')", cite))
       }
