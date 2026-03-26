@@ -1,7 +1,7 @@
 # Test suite for gmd function
 
 library(testthat)
-library(globalmacrodata)
+devtools::load_all("C:/Users/shixu/Documents/GitHub/Global-Macro-Database-R")
 
 # ==============================================================================
 # Basic functionality

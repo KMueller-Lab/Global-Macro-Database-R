@@ -172,7 +172,7 @@ gmd <- function(variables = NULL, country = NULL, version = NULL,
     if (httr::status_code(cite_response) != 200) {
       stop("Unable to import the list of sources to cite. Check internet connection.")
     }
-    cite_df <- readr::read_csv(httr::content(cite_response, as = "text"), show_col_types = FALSE)
+    cite_df <- readr::read_csv(httr::content(cite_response, as = "text", encoding = "UTF-8"), show_col_types = FALSE)
 
     if (tolower(cite) == "load") {
       message("Imported the list of sources to cite.")
@@ -202,7 +202,7 @@ gmd <- function(variables = NULL, country = NULL, version = NULL,
     }
   }
 
-  versions_df <- readr::read_csv(httr::content(versions_response, as = "text"), show_col_types = FALSE)
+  versions_df <- readr::read_csv(httr::content(versions_response, as = "text", encoding = "UTF-8"), show_col_types = FALSE)
 
   # Sort versions descending (YYYY_MM format) to get latest first
   versions_df <- versions_df[order(versions_df$versions, decreasing = TRUE), ]
@@ -240,6 +240,10 @@ gmd <- function(variables = NULL, country = NULL, version = NULL,
   # ============================================================================
   if (!is.null(sources)) {
 
+    if (length(sources) != 1) {
+      stop("Please specify exactly one source.")
+    }
+
     # Load or list sources
     if (tolower(sources) %in% c("load", "list")) {
       source_list_url <- paste0(base_url, "/helpers/source_list.csv")
@@ -247,7 +251,7 @@ gmd <- function(variables = NULL, country = NULL, version = NULL,
       if (httr::status_code(source_response) != 200) {
         stop("Unable to load source list. Check internet connection.")
       }
-      source_df <- readr::read_csv(httr::content(source_response, as = "text"), show_col_types = FALSE)
+      source_df <- readr::read_csv(httr::content(source_response, as = "text", encoding = "UTF-8"), show_col_types = FALSE)
 
       if (tolower(sources) == "load") {
         message("Imported the list of sources.")
@@ -277,7 +281,7 @@ gmd <- function(variables = NULL, country = NULL, version = NULL,
       if (httr::status_code(sl_response) != 200) {
         stop("Unable to access source list. Check internet connection.")
       }
-      sl_df <- readr::read_csv(httr::content(sl_response, as = "text"), show_col_types = FALSE)
+      sl_df <- readr::read_csv(httr::content(sl_response, as = "text", encoding = "UTF-8"), show_col_types = FALSE)
       matched_source <- sl_df$source_name[tolower(sl_df$source_name) == tolower(sources)]
       if (length(matched_source) == 1) {
         sources <- matched_source
@@ -380,7 +384,7 @@ gmd <- function(variables = NULL, country = NULL, version = NULL,
       }
     }
 
-    df <- readr::read_csv(httr::content(response, as = "text"), show_col_types = FALSE)
+    df <- readr::read_csv(httr::content(response, as = "text", encoding = "UTF-8"), show_col_types = FALSE)
 
     # Filter by country if specified
     if (!is.null(country)) {
@@ -401,7 +405,7 @@ gmd <- function(variables = NULL, country = NULL, version = NULL,
       stop("No data available for the specified parameters")
     }
 
-    n_sources <- ncol(df) - 7
+    n_sources <- ncol(df) - 8
     message(sprintf("Final dataset: %d observations of %d sources", nrow(df), n_sources))
     message(sprintf("Version: %s", current_version))
 

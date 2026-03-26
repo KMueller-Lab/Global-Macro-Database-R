@@ -54,11 +54,17 @@ df <- gmd(variables = c("rGDP", "infl", "unemp"))
 # Get raw data for a single variable
 df <- gmd(variables = "rGDP", raw = TRUE)
 
-# List available variables and their descriptions
+# Load available variables as a dataframe
 df <- gmd(vars = TRUE)
 
-# List available countries and their ISO codes
+# Print available variables (without saving)
+gmd(vars = TRUE)
+
+# Load available countries as a dataframe
 df <- gmd(iso = TRUE)
+
+# Print available countries (without saving)
+gmd(iso = TRUE)
 
 # Access data from a specific source (e.g., IMF World Economic Outlook)
 df <- gmd(sources = "IMF_WEO")
@@ -94,8 +100,8 @@ df <- gmd(
 | **country** | character or vector | ISO3 country code(s) (e.g., `"SGP"` or `c("MRT", "SGP")`) |
 | **version** | character | Dataset version in format `"YYYY_MM"` (e.g., `"2025_01"`). Use `"current"` for the latest version, `"list"` to see all available versions |
 | **raw** | logical | If `TRUE`, download raw data for a single variable |
-| **iso** | logical | If `TRUE`, display list of available countries |
-| **vars** | logical | If `TRUE`, display list of available variables |
+| **iso** | logical | If `TRUE`, return available countries. Use `df <- gmd(iso = TRUE)` to load as dataframe, or `gmd(iso = TRUE)` to print |
+| **vars** | logical | If `TRUE`, return available variables with definitions and units. Use `df <- gmd(vars = TRUE)` to load as dataframe, or `gmd(vars = TRUE)` to print |
 | **sources** | character | `"load"` to load source list, `"list"` to print sources, or a source name (e.g., `"IMF_IFS"`) to load that source's data. You can combine with `variables` to load only specific variables from that source |
 | **cite** | character | `"load"` to load citation list, or a source key (e.g., `"GMD"`) to display its BibTeX |
 
