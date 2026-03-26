@@ -18,3 +18,5 @@ df <- gmd(
   country = c("USA", "CHN"),
   variables = c("rGDP", "unemp", "CPI")
 )
+df <- gmd(sources = "IMF_WEO", variables = "nGDP",country = "USA", version = "current")
+
