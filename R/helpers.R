@@ -1,16 +1,52 @@
+.gmd_safe_get <- function(url) {
+  tryCatch(
+    {
+      response <- httr::GET(url)
+      if (httr::status_code(response) == 200) response else NULL
+    },
+    error = function(e) NULL
+  )
+}
+
+.gmd_load_versions_df <- function() {
+  versions_url <- "https://gmd-releases.s3.ap-southeast-2.amazonaws.com/data/helpers/versions.csv"
+
+  response <- .gmd_safe_get(versions_url)
+  if (!is.null(response)) {
+    versions_df <- readr::read_csv(
+      httr::content(response, as = "text", encoding = "UTF-8"),
+      show_col_types = FALSE
+    )
+    if ("versions" %in% names(versions_df)) {
+      return(versions_df)
+    }
+  }
+
+  fallback_path <- system.file("versions.csv", package = "globalmacrodata")
+  if (nzchar(fallback_path) && file.exists(fallback_path)) {
+    message("Loading version list from local fallback.")
+    return(readr::read_csv(fallback_path, show_col_types = FALSE))
+  }
+
+  stop("Error: Unable to access version information. Check internet connection or reinstall the package.")
+}
+
 #' Get available versions of the Global Macro Database
 #'
 #' @return A character vector of available versions
 #' @export
 get_available_versions <- function() {
-  versions_url <- "https://raw.githubusercontent.com/KMueller-Lab/Global-Macro-Database/refs/heads/main/data/helpers/versions.csv"
-  response <- httr::GET(versions_url)
-  if (httr::status_code(response) != 200) {
-    stop("Error: Unable to access version information. Check internet connection.")
+  versions_df <- .gmd_load_versions_df()
+  if (!"versions" %in% names(versions_df)) {
+    stop("Error: Version information is malformed.")
   }
-  
-  versions_df <- readr::read_csv(httr::content(response, as = "text"), show_col_types = FALSE)
-  return(versions_df$versions)
+
+  versions <- sort(unique(versions_df$versions), decreasing = TRUE)
+  if (length(versions) == 0) {
+    stop("Error: Version information is empty.")
+  }
+
+  versions
 }
 
 #' Get current version of the Global Macro Database
@@ -19,5 +55,5 @@ get_available_versions <- function() {
 #' @export
 get_current_version <- function() {
   versions <- get_available_versions()
-  return(versions[1])
-} 
+  versions[1]
+}

@@ -1,0 +1,80 @@
+variables,units,definition
+CA,millions of LC,The Current Account balance is the trade balance plus net factor income.
+CA_USD,millions of USD,The Current Account balance is the trade balance plus net factor income.
+CA_GDP,in %,The Current Account balance is the trade balance plus net factor income.
+cbrate,in %,Central Bank Policy Rate is the rate that is used by central bank to implement or signal its monetary policy stance.
+cons_USD,millions of USD,Total final consumption expenditure (household + government) in USD.
+cons,millions of LC,Total final consumption expenditure (household + government).
+cons_GDP,in %,Total final consumption expenditure as percent of GDP.
+hcons,millions of LC,Household final consumption expenditure (SNA P31). Covers spending by households and NPISH on goods and services.
+hcons_GDP,in %,Household final consumption expenditure as percent of GDP.
+hcons_USD,millions of USD,Household final consumption expenditure in USD.
+gcons,millions of LC,Government final consumption expenditure (SNA P3G). Covers spending by general government on goods and services.
+gcons_GDP,in %,Government final consumption expenditure as percent of GDP.
+gcons_USD,millions of USD,Government final consumption expenditure in USD.
+CPI,"index, 2015 = 100",Consumer Price Index is an economic indicator that measures the change over time of the prices of consumer goods and services acquired by households.
+deflator,Ratio,Deflator represents a statistical tool used to adjust GDP from nominal to constant prices.
+exports,millions of LC,Exports of goods and services represent the value of all goods and other market services provided to the rest of the world.
+exports_GDP,in %,Exports of goods and services represent the value of all goods and other market services provided to the rest of the world.
+exports_USD,millions of USD,Exports of goods and services represent the value of all goods and other market services provided to the rest of the world.
+finv_USD,millions of USD,"Gross Fixed Capital Formation is measured by the total value of a producer's acquisitions, less disposals of fixed assets during the accounting period, plus certain additions to the value of non-produced assets."
+finv,millions of LC,"Gross Fixed Capital Formation is measured by the total value of a producer's acquisitions, less disposals of fixed assets during the accounting period, plus certain additions to the value of non-produced assets."
+finv_GDP,in %,"Gross Fixed Capital Formation is measured by the total value of a producer's acquisitions, less disposals of fixed assets during the accounting period, plus certain additions to the value of non-produced assets."
+HPI,"index, 2015 = 100",House Prices Index measures the rate at which the prices of residential properties are changing over time.
+imports_GDP,in %,Imports of goods and services represent the value of all goods and other market services received from the rest of the world.
+imports,millions of LC,Imports of goods and services represent the value of all goods and other market services received from the rest of the world.
+imports_USD,millions of USD,Imports of goods and services represent the value of all goods and other market services received from the rest of the world.
+infl,in %,Inflation is the period-on-period change in the consumer price index.
+inv_GDP,in %,Investment represented by Gross Capital Formation which is equal to the sum of fixed capital formation and changes in inventories.
+inv,millions of LC,Investment represented by Gross Capital Formation which is equal to the sum of fixed capital formation and changes in inventories.
+inv_USD,millions of USD,Investment represented by Gross Capital Formation which is equal to the sum of fixed capital formation and changes in inventories.
+ltrate,in %,Long-term Interest Rate. Usually the yield on 10-year government bonds.
+M0,millions of LC,Total currency in circulation.
+M1,millions of LC,Demand deposits in addition to M0.
+M2,millions of LC,Time deposits in addition to M1.
+M3,millions of LC,Largest aggregate and refers to M2 in addition to money market instruments and other securities.
+M4,millions of LC,Largest aggregate and refers to M3 in addition to other long-term financial instruments
+nGDP_USD,millions of USD,Nominal Gross Domestic Product represents the total value of final goods and services produced within a country at market prices in local currency units.
+nGDP,millions of LC,Nominal Gross Domestic Product represents the total value of final goods and services produced within a country at market prices in local currency units.
+pop,millions,Population represents the number of inhabitants of a given area on 1 January of the year in question.
+REER,"index, 2015 = 100",Real Effective Exchange Rate is A broad summary measure of the prices of one country's goods and services relative to the prices of goods and services in that country's trading partners.
+rGDP,millions of LC,Real Gross Domestic Product represents the total value of final goods and services produced within a country at constant prices in local currency units.
+rGDP_pc_USD,USD,Real Gross Domestic Product Per Capita represents real GDP divided by the population
+rGDP_pc,LCU,Real Gross Domestic Product Per Capita represents real GDP divided by the population
+rGDP_USD,millions of USD,Real Gross Domestic Product represents the total value of final goods and services produced within a country at constant prices in USD using the atlas method.
+strate,in %,Short-Term Interest Rate. Usually 3 months but less than one year.
+unemp,in %,Unemployment Rate is the percentage of the labor force that is looking for a job.   
+USDfx,1 USD in LC,Local currency exchange rate against the United States Dollar.
+BankingCrisis,Dummy,
+SovDebtCrisis,Dummy,
+CurrencyCrisis,Dummy,
+cgovdebt,millions of LC,
+cgovdebt_GDP,in %,
+cgovdef,millions of LC,Total deficit represents the government total deficit 
+cgovdef_GDP,in %,
+cgovexp,millions of LC,Government Expenditure is the sum of expense and the net investment in nonfinancial assets and is presented as an additional aggregate in the Statement of Operations.
+cgovexp_GDP,in %,Government Expenditure is the sum of expense and the net investment in nonfinancial assets and is presented as an additional aggregate in the Statement of Operations.
+cgovrev,millions of LC,"Government Revenue is an increase in net worth resulting from a transaction. Revenue transactions, as defined in GFS, have counterpart entries either in an increase in assets or in a decrease in liabilities, thereby increasing net worth. "
+cgovrev_GDP,in %,"Government Revenue is an increase in net worth resulting from a transaction. Revenue transactions, as defined in GFS, have counterpart entries either in an increase in assets or in a decrease in liabilities, thereby increasing net worth. "
+cgovtax,millions of LC,"Government Taxes are compulsory, unrequited amounts receivable by government units from institutional units."
+cgovtax_GDP,in %,"Government Taxes are compulsory, unrequited amounts receivable by government units from institutional units."
+gen_govdebt,millions of LC,
+gen_govdebt_GDP,in %,
+gen_govdef,millions of LC,
+gen_govdef_GDP,in %,
+gen_govexp,millions of LC,Government Expenditure is the sum of expense and the net investment in nonfinancial assets and is presented as an additional aggregate in the Statement of Operations.
+gen_govexp_GDP,in %,Government Expenditure is the sum of expense and the net investment in nonfinancial assets and is presented as an additional aggregate in the Statement of Operations.
+gen_govrev,millions of LC,"Government Revenue is an increase in net worth resulting from a transaction. Revenue transactions, as defined in GFS, have counterpart entries either in an increase in assets or in a decrease in liabilities, thereby increasing net worth. "
+gen_govrev_GDP,in %,"Government Revenue is an increase in net worth resulting from a transaction. Revenue transactions, as defined in GFS, have counterpart entries either in an increase in assets or in a decrease in liabilities, thereby increasing net worth. "
+gen_govtax,millions of LC,"Government Taxes are compulsory, unrequited amounts receivable by government units from institutional units."
+gen_govtax_GDP,in %,"Government Taxes are compulsory, unrequited amounts receivable by government units from institutional units."
+govrev_GDP,in %,"Government Revenue is an increase in net worth resulting from a transaction. Revenue transactions, as defined in GFS, have counterpart entries either in an increase in assets or in a decrease in liabilities, thereby increasing net worth. "
+govexp_GDP,in %,Government Expenditure is the sum of expense and the net investment in nonfinancial assets and is presented as an additional aggregate in the Statement of Operations.
+govtax_GDP,in %,"Government Taxes are compulsory, unrequited amounts receivable by government units from institutional units."
+govdef_GDP,in %,
+govdebt_GDP,in %,
+govrev,millions of LC,"Government Revenue is an increase in net worth resulting from a transaction. Revenue transactions, as defined in GFS, have counterpart entries either in an increase in assets or in a decrease in liabilities, thereby increasing net worth. "
+govexp,millions of LC,Government Expenditure is the sum of expense and the net investment in nonfinancial assets and is presented as an additional aggregate in the Statement of Operations.
+govtax,millions of LC,"Government Taxes are compulsory, unrequited amounts receivable by government units from institutional units."
+govdef,millions of LC,
+govdebt,millions of LC,
