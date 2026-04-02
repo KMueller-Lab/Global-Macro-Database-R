@@ -20,7 +20,6 @@
 *.Rcheck/
 
 # R package documentation
-man/*.Rd
 man/*.html
 
 # R package tests

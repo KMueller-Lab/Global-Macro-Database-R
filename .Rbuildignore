@@ -10,4 +10,4 @@
 ^\.gitignore$
 ^\.Rbuildignore$
 ^\.Rhistory$
-^simple_test\.R$
+

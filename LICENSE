@@ -1,2 +1,24 @@
-YEAR: 2025
-COPYRIGHT HOLDER: Müller, Xu, Lehbib, and Chen 
+Global Macro Database Non-Commercial License
+
+Copyright (c) 2025 Müller, Xu, Lehbib, and Chen
+
+Permission is granted to use, copy, and modify this repository and the files
+distributed with it for non-commercial purposes only, including academic
+research, teaching, and personal use, subject to the following conditions:
+
+1. Redistributions of source code or modified versions must retain this notice.
+2. Any use of the repository, package, bundled metadata, or downloaded data for
+   commercial purposes is prohibited without prior written permission from the
+   copyright holder.
+3. Use of the Global Macro Database data remains subject to the project terms
+   published on https://www.globalmacrodata.com.
+
+THE SOFTWARE, CODE, AND ACCOMPANYING MATERIALS ARE PROVIDED "AS IS", WITHOUT
+WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE
+FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT, OR OTHERWISE, ARISING FROM, OUT OF, OR IN CONNECTION WITH THE SOFTWARE,
+CODE, OR OTHER MATERIALS IN THIS REPOSITORY.
+
+For commercial licensing enquiries, contact kmueller@globalmacrodata.com.

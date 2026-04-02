@@ -2,26 +2,124 @@
 % Please edit documentation in R/gmd.R
 \name{gmd}
 \alias{gmd}
-\title{Get macroeconomic data from Global Macro Data}
+\title{Download the Global Macro Database and the underlying raw data, with version control}
 \usage{
-gmd(variables = NULL, country = NULL, version = NULL, raw = FALSE, iso = FALSE, vars = FALSE)
+gmd(
+  variables = NULL,
+  country = NULL,
+  version = NULL,
+  raw = FALSE,
+  iso = FALSE,
+  vars = FALSE,
+  sources = NULL,
+  cite = NULL
+)
 }
 \arguments{
-\item{variables}{A character vector of variable names to include}
+\item{variables}{A character vector of variable names to include (e.g., \code{"rGDP"}
+or \code{c("rGDP", "unemp")}). Can also be used with \code{sources} to load
+specific variables from a given source.}
 
-\item{country}{A string representing the ISO3 country code}
+\item{country}{A character vector of ISO3 country codes (e.g., \code{"USA"} or
+\code{c("USA", "CHN")}). Case-insensitive.}
 
-\item{version}{A string representing the dataset version (e.g., "2025_01")}
+\item{version}{A string specifying which version of the dataset to load (e.g.,
+\code{"2025_01"}). Use \code{"current"} to display the current version, or
+\code{"list"} to see all available versions.}
 
-\item{raw}{A logical indicating whether to return raw data}
+\item{raw}{A logical. If \code{TRUE}, load all raw data sources for a single
+specified variable. Requires specifying exactly one variable.}
 
-\item{iso}{A logical indicating whether to show ISO country codes}
+\item{iso}{A logical. If \code{TRUE}, display list of available countries with
+ISO3 codes.}
 
-\item{vars}{A logical indicating whether to show available variables}
+\item{vars}{A logical. If \code{TRUE}, display list of available variables with
+definitions and units.}
+
+\item{sources}{A string. \code{"load"} to load the source list as a dataframe,
+\code{"list"} to print available source names, or a specific source name
+(e.g., \code{"IMF_IFS"}) to load that source's cleaned data. You can combine
+with \code{variables} to load only specific variables from that source.}
+
+\item{cite}{A string. \code{"load"} to load the full citation list as a dataframe,
+or a specific source key (e.g., \code{"GMD"}) to display its BibTeX citation.}
 }
 \value{
-A dataframe containing the requested macroeconomic data
+A dataframe containing the requested macroeconomic data.
 }
 \description{
-Get macroeconomic data from Global Macro Data
+This function downloads and loads the Global Macro Database (GMD), the world's
+most comprehensive repository of macroeconomic statistics. Users can specify which
+version to load, which variables to keep, and filter for specific countries. Users
+can also download the underlying data, which means easy access to hundreds of
+cleaned data sources from the original providers. The dataset is updated quarterly,
+with occasional patches; versions follow the naming convention YYYY_MM.
+}
+\details{
+When variables are specified, the function automatically drops observations where
+all specified variables are missing.
+}
+\section{Citation}{
+
+When using the Global Macro Database, please cite:
+
+Müller, K., Xu, C., Lehbib, M., & Chen, Z. (2025). The Global Macro Database:
+A New International Macroeconomic Dataset (NBER Working Paper No. 33714).
+
+Use \code{gmd(cite = "GMD")} to get the BibTeX code.
+}
+
+\section{Documentation}{
+
+\itemize{
+\item \href{https://www.globalmacrodata.com}{Website}
+\item \href{https://gmd-releases.s3.ap-southeast-2.amazonaws.com/data/distribute/GMD_TA.pdf}{Technical Appendix}
+\item \href{https://github.com/KMueller-Lab/Global-Macro-Database}{Project source code}
+}
+}
+
+\examples{
+\dontrun{
+# Load the latest full dataset
+df <- gmd()
+
+# Load specific variables
+df <- gmd(variables = c("rGDP", "infl", "unemp"))
+
+# Load data for a specific country
+df <- gmd(country = "USA")
+
+# Load a specific version for reproducibility
+df <- gmd(version = "2025_01")
+
+# List all available versions
+gmd(version = "list")
+
+# Access raw data for a single variable
+df <- gmd(variables = "rGDP", raw = TRUE)
+
+# List available variables
+df <- gmd(vars = TRUE)
+
+# List available countries
+df <- gmd(iso = TRUE)
+
+# Access data from a specific source
+df <- gmd(sources = "IMF_WEO")
+
+# Access specific variables from a source
+df <- gmd(sources = "IMF_WEO", variables = "nGDP")
+
+# List all available sources
+gmd(sources = "list")
+
+# Get BibTeX citation
+gmd(cite = "GMD")
+}
+
+}
+\author{
+Mohamed Lehbib (\email{lehbib@u.nus.edu}), National University of Singapore
+
+Karsten Müller (\email{kmueller@nus.edu.sg}), National University of Singapore
 }
