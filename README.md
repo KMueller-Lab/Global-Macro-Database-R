@@ -11,7 +11,7 @@ This repository complements the paper, **Müller, Xu, Lehbib, and Chen (2025)**,
 
 ## Features
 
-- **Unparalleled Coverage**: Combines data from more than **100 contemporary and historical sources** (e.g., IMF, World Bank, OECD).
+- **Unparalleled Coverage**: Combines data from more than **121 contemporary and historical sources** (e.g., IMF, World Bank, OECD).
 - **Extensive Variables**: GDP, inflation, government finance, trade, employment, interest rates, and more.
 - **Harmonized Data**: Resolves inconsistencies and splices all available data together.
 - **Scheduled Updates**: Regular releases ensure data reliability.
@@ -115,7 +115,9 @@ df <- gmd(
 | 2025-10-01   | 2025_09         |
 | 2026-01-01   | 2025_12         |
 | 2026-01-25   | 2026_01         |
-| 2026-03-31   | 2026_03         |
+| 2026-03-31   | 2026_03 (Current)        |
+| 2026-03-31   | 2026_06         |
+| 2026-03-31   | 2026_09         |
 
 ## Citation
 
@@ -147,7 +149,6 @@ Please visit this [repository](https://github.com/KMueller-Lab/Global-Macro-Data
 ## Authors
 
 *   **Mohamed Lehbib** (National University of Singapore) - [lehbib@u.nus.edu](mailto:lehbib@u.nus.edu)
-*   **Karsten Müller** (National University of Singapore) - [kmueller@nus.edu.sg](mailto:kmueller@nus.edu.sg) - [Website](https://www.karstenmueller.com)
 
 ## License & Terms of Use
 
