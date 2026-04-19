@@ -256,6 +256,14 @@ gmd <- function(variables = NULL, country = NULL, version = NULL,
   # ============================================================================
   # Version check (S3 first, GitHub fallback)
   # ============================================================================
+
+  # Reject NA / non-character version early so it doesn't propagate into
+  # `tolower(version) == "list"` below (which would error with the cryptic
+  # "missing value where TRUE/FALSE needed")
+  if (!is.null(version) && (!is.character(version) || length(version) != 1 || is.na(version))) {
+    stop("`version` must be a single non-NA string (e.g. \"2025_09\"), \"current\", or \"list\".")
+  }
+
   versions_df <- .gmd_load_versions_df()
   available_versions <- sort(unique(versions_df$versions), decreasing = TRUE)
   current_version <- available_versions[1]
