@@ -11,7 +11,7 @@ RoxygenNote: 7.3.2
 Depends:
     R (>= 3.5.0)
 Imports:
-    httr (>= 1.4.0),
+    httr2 (>= 1.0.0),
     readr (>= 2.0.0)
 Suggests:
     haven (>= 2.0.0),

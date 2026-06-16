@@ -149,7 +149,7 @@ gmd <- function(variables = NULL, country = NULL, version = NULL,
     resp <- .gmd_safe_get(paste0(base_url, "/helpers/countrylist.dta"))
     if (!is.null(resp)) {
       require_haven()
-      return(haven::read_dta(httr::content(resp, as = "raw")))
+      return(haven::read_dta(httr2::resp_body_raw(resp)))
     }
     # Fallback to bundled CSV
     path <- system.file("isomapping.csv", package = "globalmacrodata")
@@ -165,7 +165,7 @@ gmd <- function(variables = NULL, country = NULL, version = NULL,
   load_varlist <- function() {
     resp <- .gmd_safe_get(paste0(base_url, "/helpers/varlist.csv"))
     if (!is.null(resp)) {
-      return(readr::read_csv(httr::content(resp, as = "text", encoding = "UTF-8"),
+      return(readr::read_csv(httr2::resp_body_string(resp, encoding = "UTF-8"),
         col_types = readr::cols(variables = readr::col_character(),
                                 units = readr::col_character(),
                                 definition = readr::col_character())))
@@ -287,7 +287,7 @@ gmd <- function(variables = NULL, country = NULL, version = NULL,
     if (is.null(cite_resp)) {
       stop("Unable to import the list of sources to cite. Check internet connection.")
     }
-    cite_df <- readr::read_csv(httr::content(cite_resp, as = "text", encoding = "UTF-8"),
+    cite_df <- readr::read_csv(httr2::resp_body_string(cite_resp, encoding = "UTF-8"),
       col_types = readr::cols(source_name = readr::col_character(),
                               citation = readr::col_character()))
 
@@ -344,7 +344,7 @@ gmd <- function(variables = NULL, country = NULL, version = NULL,
       if (is.null(source_resp)) {
         stop("Unable to load source list. Check internet connection.")
       }
-      source_df <- readr::read_csv(httr::content(source_resp, as = "text", encoding = "UTF-8"),
+      source_df <- readr::read_csv(httr2::resp_body_string(source_resp, encoding = "UTF-8"),
         col_types = readr::cols(source_name = readr::col_character()))
 
       if (tolower(sources) == "load") {
@@ -365,7 +365,7 @@ gmd <- function(variables = NULL, country = NULL, version = NULL,
       if (is.null(sl_resp)) {
         stop("Unable to access source list. Check internet connection.")
       }
-      sl_df <- readr::read_csv(httr::content(sl_resp, as = "text", encoding = "UTF-8"),
+      sl_df <- readr::read_csv(httr2::resp_body_string(sl_resp, encoding = "UTF-8"),
         col_types = readr::cols(source_name = readr::col_character()))
       matched_source <- sl_df$source_name[tolower(sl_df$source_name) == tolower(sources)]
       if (length(matched_source) == 1) {
@@ -378,7 +378,7 @@ gmd <- function(variables = NULL, country = NULL, version = NULL,
     }
 
     require_haven()
-    df <- haven::read_dta(httr::content(source_resp, as = "raw"))
+    df <- haven::read_dta(httr2::resp_body_raw(source_resp))
 
     if (!is.null(variables)) {
       source_vars <- paste0(sources, "_", variables)
@@ -451,7 +451,7 @@ gmd <- function(variables = NULL, country = NULL, version = NULL,
       }
     }
 
-    df <- readr::read_csv(httr::content(raw_resp, as = "text", encoding = "UTF-8"), show_col_types = FALSE)
+    df <- readr::read_csv(httr2::resp_body_string(raw_resp, encoding = "UTF-8"), show_col_types = FALSE)
 
     if (!is.null(country)) {
       country <- validate_country(country, get_country_mapping())
@@ -481,7 +481,7 @@ gmd <- function(variables = NULL, country = NULL, version = NULL,
                         "unavailable on the server; check your internet connection or try another version."),
                 current_version, data_url))
   }
-  df <- haven::read_dta(httr::content(main_resp, as = "raw"))
+  df <- haven::read_dta(httr2::resp_body_raw(main_resp))
 
   if (!is.null(country)) {
     country <- validate_country(country, get_country_mapping())

@@ -1,8 +1,12 @@
 .gmd_safe_get <- function(url, quiet = FALSE) {
   tryCatch(
     {
-      response <- httr::GET(url)
-      status <- httr::status_code(response)
+      # Disable httr2's default "HTTP >= 400 is an error" so we can handle
+      # non-200 the same way as a network failure (return NULL), while still
+      # being able to report the status code.
+      req <- httr2::req_error(httr2::request(url), is_error = function(resp) FALSE)
+      response <- httr2::req_perform(req)
+      status <- httr2::resp_status(response)
       if (status == 200) {
         response
       } else {
@@ -23,7 +27,7 @@
   response <- .gmd_safe_get(versions_url)
   if (!is.null(response)) {
     versions_df <- readr::read_csv(
-      httr::content(response, as = "text", encoding = "UTF-8"),
+      httr2::resp_body_string(response, encoding = "UTF-8"),
       col_types = readr::cols(versions = readr::col_character())
     )
     if ("versions" %in% names(versions_df)) {
