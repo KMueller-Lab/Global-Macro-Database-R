@@ -8,11 +8,13 @@ License: file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
+Depends:
+    R (>= 3.5.0)
 Imports:
-    httr,
-    readr
+    httr (>= 1.4.0),
+    readr (>= 2.0.0)
 Suggests:
-    haven,
+    haven (>= 2.0.0),
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 URL: https://github.com/KMueller-Lab/Global-Macro-Database-R
