@@ -97,8 +97,8 @@ test_that("specific version works", {
   skip_on_cran()
   skip_if_offline()
 
-  # Use the current version since older .dta files may not be on S3
-  df <- gmd(version = "current")
+  # An older pinned vintage (S3 now serves all listed versions)
+  df <- gmd(version = "2025_09")
   expect_s3_class(df, "data.frame")
   expect_gt(nrow(df), 0)
 })
@@ -313,4 +313,70 @@ test_that("invalid cite source fails", {
   skip_if_offline()
 
   expect_error(gmd(cite = "NONEXISTENT"))
+})
+
+# ==============================================================================
+# Robustness fixes (#318) — input validation (offline, no network needed)
+# ==============================================================================
+
+test_that("version = NA gives a clear error, not a cryptic one (#2)", {
+  skip_on_cran()
+
+  expect_error(gmd(version = NA, country = "USA", variables = "rGDP"), "version")
+  expect_error(gmd(version = NA_character_, country = "USA"), "version")
+})
+
+test_that("empty character vectors are rejected before any download (#6)", {
+  skip_on_cran()
+
+  expect_error(gmd(country = character(0), variables = "rGDP"), "country")
+  expect_error(gmd(variables = character(0), country = "USA"), "variables")
+})
+
+test_that("error messages are not double-prefixed with 'Error:' (#3)", {
+  skip_on_cran()
+
+  msg <- tryCatch(gmd(version = "nope"), error = function(e) conditionMessage(e))
+  expect_false(grepl("^Error:", msg))
+  expect_match(msg, "is not valid")
+})
+
+test_that("iso = TRUE with other inputs errors instead of silently dropping them (#4)", {
+  skip_on_cran()
+
+  expect_error(gmd(iso = TRUE, country = "USA"))
+  expect_error(gmd(vars = TRUE, variables = "rGDP"))
+})
+
+test_that("start_year / end_year are validated (#7)", {
+  skip_on_cran()
+
+  expect_error(gmd(country = "USA", start_year = "abc"), "start_year")
+  expect_error(gmd(country = "USA", start_year = 2010, end_year = 2000), "end_year")
+})
+
+# ==============================================================================
+# Robustness fixes (#318) — online behavior
+# ==============================================================================
+
+test_that("variable matching is case-insensitive (#5)", {
+  skip_on_cran()
+  skip_if_offline()
+
+  df_lower <- gmd(variables = "rgdp", country = "USA", version = "2025_09")
+  df_canon <- gmd(variables = "rGDP", country = "USA", version = "2025_09")
+  expect_true("rGDP" %in% names(df_lower))
+  expect_identical(sort(names(df_lower)), sort(names(df_canon)))
+  expect_equal(nrow(df_lower), nrow(df_canon))
+})
+
+test_that("start_year and end_year filter the year range (#7)", {
+  skip_on_cran()
+  skip_if_offline()
+
+  df <- gmd(country = "USA", variables = "rGDP", start_year = 2000, end_year = 2010)
+  expect_s3_class(df, "data.frame")
+  expect_gt(nrow(df), 0)
+  expect_gte(min(df$year), 2000)
+  expect_lte(max(df$year), 2010)
 })
