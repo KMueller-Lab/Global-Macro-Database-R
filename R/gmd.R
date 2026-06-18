@@ -94,7 +94,8 @@
 #' @export
 gmd <- function(variables = NULL, country = NULL, version = NULL,
                 raw = FALSE, iso = FALSE, vars = FALSE,
-                sources = NULL, cite = NULL) {
+                sources = NULL, cite = NULL,
+                start_year = NULL, end_year = NULL) {
 
   base_url <- "https://gmd-releases.s3.ap-southeast-2.amazonaws.com/data"
   ID_COLS <- c("ISO3", "year", "countryname", "id")
@@ -102,6 +103,31 @@ gmd <- function(variables = NULL, country = NULL, version = NULL,
   message("Global Macro Database by M\u00fcller, Xu, Lehbib, and Chen (2025)")
   message("Website: https://www.globalmacrodata.com")
   message("")
+
+  # --- Input validation (runs before any download) ---
+
+  if (!is.null(version) &&
+      (!is.character(version) || length(version) != 1 || is.na(version))) {
+    stop("`version` must be a single non-NA character string, or NULL.")
+  }
+  if (!is.null(country) && length(country) == 0) {
+    stop("`country` must contain at least one ISO3 code, or be NULL.")
+  }
+  if (!is.null(variables) && length(variables) == 0) {
+    stop("`variables` must contain at least one variable name, or be NULL.")
+  }
+
+  validate_year <- function(value, name) {
+    if (is.null(value)) return(invisible(NULL))
+    if (length(value) != 1 || is.na(value) || !is.numeric(value)) {
+      stop(sprintf("`%s` must be a single non-NA number, or NULL.", name))
+    }
+  }
+  validate_year(start_year, "start_year")
+  validate_year(end_year, "end_year")
+  if (!is.null(start_year) && !is.null(end_year) && start_year > end_year) {
+    stop("`start_year` must not be greater than `end_year`.")
+  }
 
   # --- Internal helpers ---
 
@@ -115,7 +141,7 @@ gmd <- function(variables = NULL, country = NULL, version = NULL,
     resp <- .gmd_safe_get(paste0(base_url, "/helpers/countrylist.dta"))
     if (!is.null(resp)) {
       require_haven()
-      return(haven::read_dta(httr::content(resp, as = "raw")))
+      return(haven::read_dta(httr2::resp_body_raw(resp)))
     }
     # Fallback to bundled CSV
     path <- system.file("isomapping.csv", package = "globalmacrodata")
@@ -129,7 +155,7 @@ gmd <- function(variables = NULL, country = NULL, version = NULL,
   load_varlist <- function() {
     resp <- .gmd_safe_get(paste0(base_url, "/helpers/varlist.csv"))
     if (!is.null(resp)) {
-      return(readr::read_csv(httr::content(resp, as = "text", encoding = "UTF-8"), show_col_types = FALSE))
+      return(readr::read_csv(httr2::resp_body_string(resp, encoding = "UTF-8"), show_col_types = FALSE))
     }
     # Fallback to bundled CSV
     path <- system.file("varlist.csv", package = "globalmacrodata")
@@ -160,6 +186,12 @@ gmd <- function(variables = NULL, country = NULL, version = NULL,
     first <- intersect(first, colnames(df))
     rest <- setdiff(colnames(df), first)
     df[, c(first, rest), drop = FALSE]
+  }
+
+  apply_year_filter <- function(df) {
+    if (!is.null(start_year)) df <- df[df$year >= start_year, , drop = FALSE]
+    if (!is.null(end_year))   df <- df[df$year <= end_year, , drop = FALSE]
+    df
   }
 
   print_citation <- function(version) {
@@ -196,8 +228,9 @@ gmd <- function(variables = NULL, country = NULL, version = NULL,
   }
 
   if ((iso || vars) &&
-      (!is.null(variables) || !is.null(country) || !is.null(version) || raw != FALSE)) {
-    warning("When iso = TRUE or vars = TRUE, should not enter other inputs (variables, country, version, raw).")
+      (!is.null(variables) || !is.null(country) || !is.null(version) ||
+       raw != FALSE || !is.null(sources) || !is.null(cite))) {
+    stop("When iso = TRUE or vars = TRUE, do not supply other inputs (variables, country, version, raw, sources, cite).")
   }
 
   # ============================================================================
@@ -234,11 +267,14 @@ gmd <- function(variables = NULL, country = NULL, version = NULL,
   # Cite option
   # ============================================================================
   if (!is.null(cite)) {
+    if (length(cite) != 1 || is.na(cite)) {
+      stop("`cite` must be a single non-NA source key (or 'load').")
+    }
     cite_resp <- .gmd_safe_get(paste0(base_url, "/helpers/bib_dataframe.csv"))
     if (is.null(cite_resp)) {
       stop("Unable to import the list of sources to cite. Check internet connection.")
     }
-    cite_df <- readr::read_csv(httr::content(cite_resp, as = "text", encoding = "UTF-8"), show_col_types = FALSE)
+    cite_df <- readr::read_csv(httr2::resp_body_string(cite_resp, encoding = "UTF-8"), show_col_types = FALSE)
 
     if (tolower(cite) == "load") {
       message("Imported the list of sources to cite.")
@@ -293,7 +329,7 @@ gmd <- function(variables = NULL, country = NULL, version = NULL,
       if (is.null(source_resp)) {
         stop("Unable to load source list. Check internet connection.")
       }
-      source_df <- readr::read_csv(httr::content(source_resp, as = "text", encoding = "UTF-8"), show_col_types = FALSE)
+      source_df <- readr::read_csv(httr2::resp_body_string(source_resp, encoding = "UTF-8"), show_col_types = FALSE)
 
       if (tolower(sources) == "load") {
         message("Imported the list of sources.")
@@ -313,7 +349,7 @@ gmd <- function(variables = NULL, country = NULL, version = NULL,
       if (is.null(sl_resp)) {
         stop("Unable to access source list. Check internet connection.")
       }
-      sl_df <- readr::read_csv(httr::content(sl_resp, as = "text", encoding = "UTF-8"), show_col_types = FALSE)
+      sl_df <- readr::read_csv(httr2::resp_body_string(sl_resp, encoding = "UTF-8"), show_col_types = FALSE)
       matched_source <- sl_df$source_name[tolower(sl_df$source_name) == tolower(sources)]
       if (length(matched_source) == 1) {
         sources <- matched_source
@@ -325,7 +361,7 @@ gmd <- function(variables = NULL, country = NULL, version = NULL,
     }
 
     require_haven()
-    df <- haven::read_dta(httr::content(source_resp, as = "raw"))
+    df <- haven::read_dta(httr2::resp_body_raw(source_resp))
 
     if (!is.null(variables)) {
       source_vars <- paste0(sources, "_", variables)
@@ -345,6 +381,7 @@ gmd <- function(variables = NULL, country = NULL, version = NULL,
       df <- df[df$ISO3 %in% country, , drop = FALSE]
     }
 
+    df <- apply_year_filter(df)
     df <- df[order(df$ISO3, df$year), ]
     df <- drop_na_cols(df)
 
@@ -366,11 +403,14 @@ gmd <- function(variables = NULL, country = NULL, version = NULL,
     }
 
     valid_vars <- get_varlist()$variables
-    invalid_vars <- setdiff(variables, valid_vars)
+    # Match case-insensitively, then normalize to the canonical casing (e.g. "rgdp" -> "rGDP")
+    canonical <- valid_vars[match(tolower(variables), tolower(valid_vars))]
+    invalid_vars <- variables[is.na(canonical)]
     if (length(invalid_vars) > 0) {
       stop(sprintf("Invalid variable code(s): %s\n\nTo see the list of valid variable codes, use: gmd(vars = TRUE)",
                   paste(invalid_vars, collapse = ", ")))
     }
+    variables <- canonical
   }
 
   # ============================================================================
@@ -392,13 +432,14 @@ gmd <- function(variables = NULL, country = NULL, version = NULL,
       }
     }
 
-    df <- readr::read_csv(httr::content(raw_resp, as = "text", encoding = "UTF-8"), show_col_types = FALSE)
+    df <- readr::read_csv(httr2::resp_body_string(raw_resp, encoding = "UTF-8"), show_col_types = FALSE)
 
     if (!is.null(country)) {
       country <- validate_country(country, get_country_mapping())
       df <- df[df$ISO3 %in% country, , drop = FALSE]
     }
 
+    df <- apply_year_filter(df)
     df <- reorder_cols(df)
     df <- df[order(df$countryname, df$year), ]
 
@@ -418,7 +459,7 @@ gmd <- function(variables = NULL, country = NULL, version = NULL,
   if (is.null(main_resp)) {
     stop(sprintf("Error: Data file not found at %s\nCheck internet connection.", data_url))
   }
-  df <- haven::read_dta(httr::content(main_resp, as = "raw"))
+  df <- haven::read_dta(httr2::resp_body_raw(main_resp))
 
   if (!is.null(country)) {
     country <- validate_country(country, get_country_mapping())
@@ -442,6 +483,7 @@ gmd <- function(variables = NULL, country = NULL, version = NULL,
     }
   }
 
+  df <- apply_year_filter(df)
   df <- drop_na_cols(df, protect = ID_COLS)
   df <- reorder_cols(df)
   df <- df[order(df$countryname, df$year), ]

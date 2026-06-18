@@ -1,8 +1,9 @@
 .gmd_safe_get <- function(url) {
   tryCatch(
     {
-      response <- httr::GET(url)
-      if (httr::status_code(response) == 200) response else NULL
+      req <- httr2::req_error(httr2::request(url), is_error = function(resp) FALSE)
+      response <- httr2::req_perform(req)
+      if (httr2::resp_status(response) == 200) response else NULL
     },
     error = function(e) NULL
   )
@@ -14,7 +15,7 @@
   response <- .gmd_safe_get(versions_url)
   if (!is.null(response)) {
     versions_df <- readr::read_csv(
-      httr::content(response, as = "text", encoding = "UTF-8"),
+      httr2::resp_body_string(response, encoding = "UTF-8"),
       show_col_types = FALSE
     )
     if ("versions" %in% names(versions_df)) {
