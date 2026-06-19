@@ -147,7 +147,9 @@ gmd <- function(variables = NULL, country = NULL, version = NULL,
     path <- system.file("isomapping.csv", package = "globalmacrodata")
     if (nzchar(path) && file.exists(path)) {
       message("Loading country list from local fallback.")
-      return(readr::read_csv(path, show_col_types = FALSE))
+      return(readr::read_csv(path,
+        col_types = readr::cols(countryname = readr::col_character(),
+                                ISO3 = readr::col_character())))
     }
     stop("Unable to load country list. Check internet connection or reinstall the package.")
   }
@@ -155,13 +157,19 @@ gmd <- function(variables = NULL, country = NULL, version = NULL,
   load_varlist <- function() {
     resp <- .gmd_safe_get(paste0(base_url, "/helpers/varlist.csv"))
     if (!is.null(resp)) {
-      return(readr::read_csv(httr2::resp_body_string(resp, encoding = "UTF-8"), show_col_types = FALSE))
+      return(readr::read_csv(httr2::resp_body_string(resp, encoding = "UTF-8"),
+        col_types = readr::cols(variables = readr::col_character(),
+                                units = readr::col_character(),
+                                definition = readr::col_character())))
     }
     # Fallback to bundled CSV
     path <- system.file("varlist.csv", package = "globalmacrodata")
     if (nzchar(path) && file.exists(path)) {
       message("Loading variable list from local fallback.")
-      return(readr::read_csv(path, show_col_types = FALSE))
+      return(readr::read_csv(path,
+        col_types = readr::cols(variables = readr::col_character(),
+                                units = readr::col_character(),
+                                definition = readr::col_character())))
     }
     stop("Unable to load variable list. Check internet connection or reinstall the package.")
   }
@@ -274,11 +282,13 @@ gmd <- function(variables = NULL, country = NULL, version = NULL,
     if (is.null(cite_resp)) {
       stop("Unable to import the list of sources to cite. Check internet connection.")
     }
-    cite_df <- readr::read_csv(httr2::resp_body_string(cite_resp, encoding = "UTF-8"), show_col_types = FALSE)
+    cite_df <- readr::read_csv(httr2::resp_body_string(cite_resp, encoding = "UTF-8"),
+      col_types = readr::cols(source_name = readr::col_character(),
+                              citation = readr::col_character()))
 
     if (tolower(cite) == "load") {
       message("Imported the list of sources to cite.")
-      return(cite_df)
+      return(as.data.frame(cite_df))
     }
 
     matched <- cite_df[tolower(cite_df$source_name) == tolower(cite), ]
@@ -286,7 +296,7 @@ gmd <- function(variables = NULL, country = NULL, version = NULL,
       stop(sprintf("Source '%s' does not exist.\nTo load the list of sources to cite, use: gmd(cite = 'load')", cite))
     }
     message(matched$citation[1])
-    return(invisible(matched))
+    return(invisible(as.data.frame(matched)))
   }
 
   # ============================================================================
@@ -329,11 +339,12 @@ gmd <- function(variables = NULL, country = NULL, version = NULL,
       if (is.null(source_resp)) {
         stop("Unable to load source list. Check internet connection.")
       }
-      source_df <- readr::read_csv(httr2::resp_body_string(source_resp, encoding = "UTF-8"), show_col_types = FALSE)
+      source_df <- readr::read_csv(httr2::resp_body_string(source_resp, encoding = "UTF-8"),
+        col_types = readr::cols(source_name = readr::col_character()))
 
       if (tolower(sources) == "load") {
         message("Imported the list of sources.")
-        return(source_df)
+        return(as.data.frame(source_df))
       }
       message("Available sources:")
       for (s in source_df$source_name) message(s)
@@ -349,7 +360,8 @@ gmd <- function(variables = NULL, country = NULL, version = NULL,
       if (is.null(sl_resp)) {
         stop("Unable to access source list. Check internet connection.")
       }
-      sl_df <- readr::read_csv(httr2::resp_body_string(sl_resp, encoding = "UTF-8"), show_col_types = FALSE)
+      sl_df <- readr::read_csv(httr2::resp_body_string(sl_resp, encoding = "UTF-8"),
+        col_types = readr::cols(source_name = readr::col_character()))
       matched_source <- sl_df$source_name[tolower(sl_df$source_name) == tolower(sources)]
       if (length(matched_source) == 1) {
         sources <- matched_source
@@ -388,6 +400,7 @@ gmd <- function(variables = NULL, country = NULL, version = NULL,
     n_vars <- ncol(df) - length(intersect(ID_COLS, colnames(df)))
     message(sprintf("Final dataset: %d observations of %d variables", nrow(df), n_vars))
     print_citation(current_version)
+    df <- as.data.frame(df)
     return(df)
   }
 
@@ -432,7 +445,10 @@ gmd <- function(variables = NULL, country = NULL, version = NULL,
       }
     }
 
-    df <- readr::read_csv(httr2::resp_body_string(raw_resp, encoding = "UTF-8"), show_col_types = FALSE)
+    df <- readr::read_csv(httr2::resp_body_string(raw_resp, encoding = "UTF-8"),
+      col_types = readr::cols(ISO3 = readr::col_character(),
+                              countryname = readr::col_character(),
+                              year = readr::col_integer()))
 
     if (!is.null(country)) {
       country <- validate_country(country, get_country_mapping())
@@ -448,6 +464,7 @@ gmd <- function(variables = NULL, country = NULL, version = NULL,
     n_sources <- ncol(df) - length(intersect(ID_COLS, colnames(df)))
     message(sprintf("Final dataset: %d observations of %d sources", nrow(df), n_sources))
     print_citation(current_version)
+    df <- as.data.frame(df)
     return(df)
   }
 
@@ -499,6 +516,7 @@ gmd <- function(variables = NULL, country = NULL, version = NULL,
   }
   print_citation(current_version)
 
+  df <- as.data.frame(df)
   return(df)
 }
 

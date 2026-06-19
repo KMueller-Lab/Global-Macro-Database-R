@@ -3,9 +3,18 @@
     {
       req <- httr2::req_error(httr2::request(url), is_error = function(resp) FALSE)
       response <- httr2::req_perform(req)
-      if (httr2::resp_status(response) == 200) response else NULL
+      status <- httr2::resp_status(response)
+      if (status == 200) {
+        response
+      } else {
+        message(sprintf("Request to %s returned HTTP status %d.", url, status))
+        NULL
+      }
     },
-    error = function(e) NULL
+    error = function(e) {
+      message(sprintf("Request to %s failed: %s", url, conditionMessage(e)))
+      NULL
+    }
   )
 }
 
@@ -16,7 +25,7 @@
   if (!is.null(response)) {
     versions_df <- readr::read_csv(
       httr2::resp_body_string(response, encoding = "UTF-8"),
-      show_col_types = FALSE
+      col_types = readr::cols(versions = readr::col_character())
     )
     if ("versions" %in% names(versions_df)) {
       return(versions_df)
@@ -26,7 +35,8 @@
   fallback_path <- system.file("versions.csv", package = "globalmacrodata")
   if (nzchar(fallback_path) && file.exists(fallback_path)) {
     message("Loading version list from local fallback.")
-    return(readr::read_csv(fallback_path, show_col_types = FALSE))
+    return(readr::read_csv(fallback_path,
+                           col_types = readr::cols(versions = readr::col_character())))
   }
 
   stop("Error: Unable to access version information. Check internet connection or reinstall the package.")
