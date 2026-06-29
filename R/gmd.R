@@ -30,6 +30,13 @@
 #'   with \code{variables} to load only specific variables from that source.
 #' @param cite A string. \code{"load"} to load the full citation list as a dataframe,
 #'   or a specific source key (e.g., \code{"GMD"}) to display its BibTeX citation.
+#' @param print_option A string, \code{"GMD"} or \code{"Stata"} (case-insensitive),
+#'   to print the corresponding APA citation and return invisibly. Parity with the
+#'   Python/Stata \code{print} option.
+#' @param fast Logical (or the string \code{"yes"}). If \code{TRUE}, save the
+#'   downloaded dataset to a local cache so subsequent calls load it from disk
+#'   instead of re-downloading. Once cached, the file is reused automatically.
+#'   Parity with the Python/Stata \code{fast} option.
 #' @return A dataframe containing the requested macroeconomic data.
 #'
 #' @examples
@@ -94,14 +101,51 @@
 #' @export
 gmd <- function(variables = NULL, country = NULL, version = NULL,
                 raw = FALSE, iso = FALSE, vars = FALSE,
-                sources = NULL, cite = NULL) {
+                sources = NULL, cite = NULL, print_option = NULL,
+                fast = FALSE) {
 
   base_url <- "https://gmd-releases.s3.ap-southeast-2.amazonaws.com/data"
   ID_COLS <- c("ISO3", "year", "countryname", "id")
 
+  # [print] Print the APA citation and return early (parity with Python/Stata).
+  # Case-insensitive; invalid value errors.
+  if (!is.null(print_option)) {
+    if (length(print_option) != 1 || is.na(print_option)) {
+      stop("`print_option` must be a single non-NA value ('GMD' or 'Stata').")
+    }
+    opt <- tolower(trimws(print_option))
+    if (opt == "gmd") {
+      message("Müller, K., Xu, C., Lehbib, M., & Chen, Z. (2025). The Global Macro Database: A New International Macroeconomic Dataset (NBER Working Paper No. 33714).")
+      return(invisible(NULL))
+    }
+    if (opt == "stata") {
+      message("Lehbib, M. & Müller, K. (2025). gmd: The Easy Way to Access the World's Most Comprehensive Macroeconomic Database. Working Paper.")
+      return(invisible(NULL))
+    }
+    stop("Invalid option for print(). valid arguments are 'GMD' or 'Stata'.")
+  }
+
   message("Global Macro Database by M\u00fcller, Xu, Lehbib, and Chen (2025)")
   message("Website: https://www.globalmacrodata.com")
   message("")
+
+  # [#4] Trim surrounding whitespace consistently with Python/Stata. Blank tokens
+  # are dropped; an empty/all-blank value becomes NULL ("no filter") instead of
+  # erroring, matching Python's lenient handling.
+  if (!is.null(version)) {
+    version <- trimws(version)
+    if (identical(version, "")) version <- NULL
+  }
+  if (!is.null(country)) {
+    country <- trimws(country)
+    country <- country[country != ""]
+    if (length(country) == 0) country <- NULL
+  }
+  if (!is.null(variables)) {
+    variables <- trimws(variables)
+    variables <- variables[variables != ""]
+    if (length(variables) == 0) variables <- NULL
+  }
 
   # --- Internal helpers ---
 
@@ -234,6 +278,15 @@ gmd <- function(variables = NULL, country = NULL, version = NULL,
   # Cite option
   # ============================================================================
   if (!is.null(cite)) {
+    # [#7] Validate an explicit version before honoring cite, so an invalid
+    # version errors regardless of cite (matches Python/Stata precedence).
+    if (!is.null(version) && !tolower(version) %in% c("list", "current")) {
+      .v_avail <- sort(unique(.gmd_load_versions_df()$versions), decreasing = TRUE)
+      if (!version %in% .v_avail) {
+        stop(sprintf("Error: %s is not valid\nAvailable versions are: %s\nThe current version is: %s",
+                    version, paste(sort(.v_avail), collapse = ", "), .v_avail[1]))
+      }
+    }
     cite_resp <- .gmd_safe_get(paste0(base_url, "/helpers/bib_dataframe.csv"))
     if (is.null(cite_resp)) {
       stop("Unable to import the list of sources to cite. Check internet connection.")
@@ -366,11 +419,15 @@ gmd <- function(variables = NULL, country = NULL, version = NULL,
     }
 
     valid_vars <- get_varlist()$variables
-    invalid_vars <- setdiff(variables, valid_vars)
+    # [#2] Match variable names case-insensitively and normalize to the dataset's
+    # canonical casing (e.g. "rgdp" -> "rGDP"), consistent with Python/Stata.
+    canonical <- valid_vars[match(tolower(variables), tolower(valid_vars))]
+    invalid_vars <- variables[is.na(canonical)]
     if (length(invalid_vars) > 0) {
       stop(sprintf("Invalid variable code(s): %s\n\nTo see the list of valid variable codes, use: gmd(vars = TRUE)",
                   paste(invalid_vars, collapse = ", ")))
     }
+    variables <- canonical
   }
 
   # ============================================================================
@@ -414,11 +471,28 @@ gmd <- function(variables = NULL, country = NULL, version = NULL,
   # Main dataset
   # ============================================================================
   require_haven()
-  main_resp <- .gmd_safe_get(data_url)
-  if (is.null(main_resp)) {
-    stop(sprintf("Error: Data file not found at %s\nCheck internet connection.", data_url))
+  # [fast] Optional local cache of the dataset for faster reloads / offline use
+  # (parity with Python/Stata `fast`). Once cached, the file is reused automatically.
+  use_fast <- isTRUE(fast) || (is.character(fast) && tolower(trimws(fast)) == "yes")
+  cache_dir <- tools::R_user_dir("globalmacrodata", "cache")
+  cache_file <- file.path(cache_dir, sprintf("GMD_%s.dta", current_version))
+  if (file.exists(cache_file)) {
+    df <- haven::read_dta(cache_file)
+  } else {
+    main_resp <- .gmd_safe_get(data_url)
+    if (is.null(main_resp)) {
+      stop(sprintf("Error: Data file not found at %s\nCheck internet connection.", data_url))
+    }
+    raw_bytes <- httr::content(main_resp, as = "raw")
+    df <- haven::read_dta(raw_bytes)
+    if (use_fast) {
+      if (!dir.exists(cache_dir)) dir.create(cache_dir, recursive = TRUE, showWarnings = FALSE)
+      # Save the original .dta bytes verbatim so a cached read is byte-identical to a
+      # fresh download.
+      writeBin(raw_bytes, cache_file)
+      message(sprintf("GMD dataset loaded and saved locally in %s.", cache_dir))
+    }
   }
-  df <- haven::read_dta(httr::content(main_resp, as = "raw"))
 
   if (!is.null(country)) {
     country <- validate_country(country, get_country_mapping())
