@@ -134,18 +134,37 @@ gmd <- function(variables = NULL, country = NULL, version = NULL,
   # erroring, matching Python's lenient handling.
   if (!is.null(version)) {
     version <- trimws(version)
-    if (identical(version, "")) version <- NULL
+    version <- version[!is.na(version) & version != ""]
+    if (length(version) == 0) {
+      version <- NULL
+    } else if (length(version) > 1) {
+      stop("`version` must be a single value, e.g. \"2025_01\", \"current\", or \"list\".")
+    }
   }
   if (!is.null(country)) {
     country <- trimws(country)
-    country <- country[country != ""]
+    country <- country[!is.na(country) & country != ""]
     if (length(country) == 0) country <- NULL
   }
   if (!is.null(variables)) {
     variables <- trimws(variables)
-    variables <- variables[variables != ""]
+    variables <- variables[!is.na(variables) & variables != ""]
     if (length(variables) == 0) variables <- NULL
   }
+
+  # Validate the logical flags `iso`/`vars`: accept only TRUE/FALSE (logical) or
+  # the strings "TRUE"/"FALSE" (case-insensitive). Anything else (e.g. "yes", 1,
+  # NA) is a clear error rather than a cryptic crash in the `&&` / `if` checks.
+  as_flag <- function(x, name) {
+    if (is.logical(x) && length(x) == 1L && !is.na(x)) return(x)
+    if (is.character(x) && length(x) == 1L && !is.na(x) && toupper(x) %in% c("TRUE", "FALSE")) {
+      return(toupper(x) == "TRUE")
+    }
+    stop(sprintf("`%s` must be TRUE or FALSE (or the string \"TRUE\"/\"FALSE\"). You supplied: %s",
+                 name, paste(deparse(x), collapse = "")))
+  }
+  iso  <- as_flag(iso, "iso")
+  vars <- as_flag(vars, "vars")
 
   # --- Internal helpers ---
 
@@ -382,7 +401,10 @@ gmd <- function(variables = NULL, country = NULL, version = NULL,
 
     if (!is.null(variables)) {
       source_vars <- paste0(sources, "_", variables)
-      existing <- intersect(source_vars, colnames(df))
+      # Match source-variable columns case-insensitively (parity with the main
+      # path, which canonicalizes variable casing) and return the canonical
+      # column names actually present in the data.
+      existing <- colnames(df)[tolower(colnames(df)) %in% tolower(source_vars)]
       if (length(existing) == 0) {
         all_data_cols <- setdiff(colnames(df), ID_COLS)
         stop(sprintf("This source doesn't have data on %s. It has data on: %s",
@@ -427,7 +449,7 @@ gmd <- function(variables = NULL, country = NULL, version = NULL,
       stop(sprintf("Invalid variable code(s): %s\n\nTo see the list of valid variable codes, use: gmd(vars = TRUE)",
                   paste(invalid_vars, collapse = ", ")))
     }
-    variables <- canonical
+    variables <- unique(canonical)
   }
 
   # ============================================================================
