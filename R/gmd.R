@@ -31,6 +31,13 @@
 #'   with \code{variables} to load only specific variables from that source.
 #' @param cite A string. \code{"load"} to load the full citation list as a dataframe,
 #'   or a specific source key (e.g., \code{"GMD"}) to display its BibTeX citation.
+#' @param print_option A string, \code{"GMD"} or \code{"Stata"} (case-insensitive),
+#'   to print the corresponding APA citation and return invisibly. Parity with the
+#'   Python/Stata \code{print} option.
+#' @param fast Logical (or the string \code{"yes"}). If \code{TRUE}, save the
+#'   downloaded dataset to a local cache so subsequent calls load it from disk
+#'   instead of re-downloading. Once cached, the file is reused automatically.
+#'   Parity with the Python/Stata \code{fast} option.
 #' @param start_year A single number. If supplied, only observations with
 #'   \code{year >= start_year} are returned.
 #' @param end_year A single number. If supplied, only observations with
@@ -102,28 +109,82 @@
 #' @export
 gmd <- function(variables = NULL, country = NULL, version = NULL,
                 raw = FALSE, iso = FALSE, vars = FALSE,
-                sources = NULL, cite = NULL,
-                start_year = NULL, end_year = NULL) {
+                sources = NULL, cite = NULL, print_option = NULL,
+                fast = FALSE, start_year = NULL, end_year = NULL) {
 
   base_url <- "https://gmd-releases.s3.ap-southeast-2.amazonaws.com/data"
   ID_COLS <- c("ISO3", "year", "countryname", "id")
+
+  # [print] Print the APA citation and return early (parity with Python/Stata).
+  # Case-insensitive; invalid value errors.
+  if (!is.null(print_option)) {
+    if (length(print_option) != 1 || is.na(print_option)) {
+      stop("`print_option` must be a single non-NA value ('GMD' or 'Stata').")
+    }
+    opt <- tolower(trimws(print_option))
+    if (opt == "gmd") {
+      message("M\u00fcller, K., Xu, C., Lehbib, M., & Chen, Z. (2025). The Global Macro Database: A New International Macroeconomic Dataset (NBER Working Paper No. 33714).")
+      return(invisible(NULL))
+    }
+    if (opt == "stata") {
+      message("Lehbib, M. & M\u00fcller, K. (2025). gmd: The Easy Way to Access the World's Most Comprehensive Macroeconomic Database. Working Paper.")
+      return(invisible(NULL))
+    }
+    stop("Invalid option for print(). valid arguments are 'GMD' or 'Stata'.")
+  }
 
   message("Global Macro Database by M\u00fcller, Xu, Lehbib, and Chen (2025)")
   message("Website: https://www.globalmacrodata.com")
   message("")
 
-  # --- Input validation (runs before any download) ---
+  # --- Input validation & normalization (runs before any download) ---
 
+  # Trim incidental whitespace on version/country/variables. An empty result
+  # after trimming still hits the errors below (rather than silently becoming
+  # "no filter"), consistent with #318's fix for empty vectors triggering a
+  # full dataset download before failing.
+  if (!is.null(version) && is.character(version) && length(version) == 1 && !is.na(version)) {
+    version <- trimws(version)
+  }
   if (!is.null(version) &&
-      (!is.character(version) || length(version) != 1 || is.na(version))) {
+      (!is.character(version) || length(version) != 1 || is.na(version) || version == "")) {
     stop("`version` must be a single non-NA character string, or NULL.")
   }
-  if (!is.null(country) && length(country) == 0) {
-    stop("`country` must contain at least one ISO3 code, or be NULL.")
+
+  if (!is.null(country)) {
+    if (!is.character(country)) {
+      stop("`country` must be a character vector of ISO3 codes, or NULL.")
+    }
+    country <- trimws(country)
+    country <- country[!is.na(country) & country != ""]
+    if (length(country) == 0) {
+      stop("`country` must contain at least one ISO3 code, or be NULL.")
+    }
   }
-  if (!is.null(variables) && length(variables) == 0) {
-    stop("`variables` must contain at least one variable name, or be NULL.")
+  if (!is.null(variables)) {
+    if (!is.character(variables)) {
+      stop("`variables` must be a character vector of variable names, or NULL.")
+    }
+    variables <- trimws(variables)
+    variables <- variables[!is.na(variables) & variables != ""]
+    if (length(variables) == 0) {
+      stop("`variables` must contain at least one variable name, or be NULL.")
+    }
   }
+
+  # Validate the logical flags `iso`/`vars`: accept only TRUE/FALSE (logical) or
+  # the strings "TRUE"/"FALSE" (case-insensitive). Anything else (e.g. "yes", 1,
+  # NA) is a clear error rather than a cryptic crash in the `&&` / `if` checks.
+  as_flag <- function(x, name) {
+    if (is.logical(x) && length(x) == 1L && !is.na(x)) return(x)
+    if (is.character(x) && length(x) == 1L && !is.na(x) && toupper(x) %in% c("TRUE", "FALSE")) {
+      return(toupper(x) == "TRUE")
+    }
+    stop(sprintf("`%s` must be TRUE or FALSE (or the string \"TRUE\"/\"FALSE\"). You supplied: %s",
+                 name, paste(deparse(x), collapse = "")))
+  }
+  iso  <- as_flag(iso, "iso")
+  vars <- as_flag(vars, "vars")
 
   validate_year <- function(value, name) {
     if (is.null(value)) return(invisible(NULL))
@@ -283,6 +344,15 @@ gmd <- function(variables = NULL, country = NULL, version = NULL,
   # Cite option
   # ============================================================================
   if (!is.null(cite)) {
+    # [#7] Validate an explicit version before honoring cite, so an invalid
+    # version errors regardless of cite (matches Python/Stata precedence).
+    if (!is.null(version) && !tolower(version) %in% c("list", "current")) {
+      .v_avail <- sort(unique(.gmd_load_versions_df()$versions), decreasing = TRUE)
+      if (!version %in% .v_avail) {
+        stop(sprintf("Error: %s is not valid\nAvailable versions are: %s\nThe current version is: %s",
+                    version, paste(sort(.v_avail), collapse = ", "), .v_avail[1]))
+      }
+    }
     cite_resp <- .gmd_safe_get(paste0(base_url, "/helpers/bib_dataframe.csv"))
     if (is.null(cite_resp)) {
       stop("Unable to import the list of sources to cite. Check internet connection.")
@@ -382,7 +452,10 @@ gmd <- function(variables = NULL, country = NULL, version = NULL,
 
     if (!is.null(variables)) {
       source_vars <- paste0(sources, "_", variables)
-      existing <- intersect(source_vars, colnames(df))
+      # Match source-variable columns case-insensitively (parity with the main
+      # path, which canonicalizes variable casing) and return the canonical
+      # column names actually present in the data.
+      existing <- colnames(df)[tolower(colnames(df)) %in% tolower(source_vars)]
       if (length(existing) == 0) {
         all_data_cols <- setdiff(colnames(df), ID_COLS)
         stop(sprintf("This source doesn't have data on %s. It has data on: %s",
@@ -423,14 +496,15 @@ gmd <- function(variables = NULL, country = NULL, version = NULL,
     }
 
     valid_vars <- get_varlist()$variables
-    # Match case-insensitively, then normalize to the canonical casing (e.g. "rgdp" -> "rGDP")
+    # Match variable names case-insensitively and normalize to the dataset's
+    # canonical casing (e.g. "rgdp" -> "rGDP"), consistent with Python/Stata.
     canonical <- valid_vars[match(tolower(variables), tolower(valid_vars))]
     invalid_vars <- variables[is.na(canonical)]
     if (length(invalid_vars) > 0) {
       stop(sprintf("Invalid variable code(s): %s\n\nTo see the list of valid variable codes, use: gmd(vars = TRUE)",
                   paste(invalid_vars, collapse = ", ")))
     }
-    variables <- canonical
+    variables <- unique(canonical)
   }
 
   # ============================================================================
@@ -476,14 +550,36 @@ gmd <- function(variables = NULL, country = NULL, version = NULL,
   # Main dataset
   # ============================================================================
   require_haven()
-  main_resp <- .gmd_safe_get(data_url)
-  if (is.null(main_resp)) {
-    stop(sprintf(paste0("Could not retrieve the data file for version '%s' (%s).\n",
-                        "The version is listed as available but the file may be temporarily ",
-                        "unavailable on the server; check your internet connection or try another version."),
-                current_version, data_url))
+  # [fast] Optional local cache of the dataset for faster reloads / offline use
+  # (parity with Python/Stata `fast`). Once cached, the file is reused automatically.
+  use_fast <- isTRUE(fast) || (is.character(fast) && tolower(trimws(fast)) == "yes")
+  cache_dir <- tools::R_user_dir("globalmacrodata", "cache")
+  cache_file <- file.path(cache_dir, sprintf("GMD_%s.dta", current_version))
+  # Only read the cache when fast = TRUE was explicitly requested; otherwise a
+  # cache from a previous fast = TRUE call would silently serve stale data even
+  # when the caller asked for a normal (non-cached) load.
+  if (use_fast && file.exists(cache_file)) {
+    df <- haven::read_dta(cache_file)
+  } else {
+    main_resp <- .gmd_safe_get(data_url)
+    if (is.null(main_resp)) {
+      stop(sprintf(paste0("Could not retrieve the data file for version '%s' (%s).\n",
+                          "The version is listed as available but the file may be temporarily ",
+                          "unavailable on the server; check your internet connection or try another version."),
+                  current_version, data_url))
+    }
+    raw_bytes <- httr2::resp_body_raw(main_resp)
+    df <- haven::read_dta(raw_bytes)
+    if (use_fast) {
+      if (!dir.exists(cache_dir)) dir.create(cache_dir, recursive = TRUE, showWarnings = FALSE)
+      # Write to a temp file first and rename into place, so a crash or
+      # interrupted write never leaves a truncated/corrupt cache file behind.
+      tmp_file <- paste0(cache_file, ".tmp", Sys.getpid())
+      writeBin(raw_bytes, tmp_file)
+      file.rename(tmp_file, cache_file)
+      message(sprintf("GMD dataset loaded and saved locally in %s.", cache_dir))
+    }
   }
-  df <- haven::read_dta(httr2::resp_body_raw(main_resp))
 
   if (!is.null(country)) {
     country <- validate_country(country, get_country_mapping())

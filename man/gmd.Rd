@@ -13,6 +13,8 @@ gmd(
   vars = FALSE,
   sources = NULL,
   cite = NULL,
+  print_option = NULL,
+  fast = FALSE,
   start_year = NULL,
   end_year = NULL
 )
@@ -46,6 +48,15 @@ with \code{variables} to load only specific variables from that source.}
 
 \item{cite}{A string. \code{"load"} to load the full citation list as a dataframe,
 or a specific source key (e.g., \code{"GMD"}) to display its BibTeX citation.}
+
+\item{print_option}{A string, \code{"GMD"} or \code{"Stata"} (case-insensitive),
+to print the corresponding APA citation and return invisibly. Parity with the
+Python/Stata \code{print} option.}
+
+\item{fast}{Logical (or the string \code{"yes"}). If \code{TRUE}, save the
+downloaded dataset to a local cache so subsequent calls load it from disk
+instead of re-downloading. Once cached, the file is reused automatically.
+Parity with the Python/Stata \code{fast} option.}
 
 \item{start_year}{A single number. If supplied, only observations with
 \code{year >= start_year} are returned.}

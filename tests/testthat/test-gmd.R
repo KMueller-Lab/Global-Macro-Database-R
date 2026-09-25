@@ -245,7 +245,7 @@ test_that("cite load works", {
 
   df <- gmd(cite = "load")
   expect_s3_class(df, "data.frame")
-  expect_true("source_name" %in% names(df))
+  expect_true("source" %in% names(df))
   expect_true("citation" %in% names(df))
   expect_gt(nrow(df), 0)
 })
