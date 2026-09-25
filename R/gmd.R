@@ -293,7 +293,7 @@ gmd <- function(variables = NULL, country = NULL, version = NULL,
 
     if (tolower(cite) == "load") {
       message("Imported the list of sources to cite.")
-      return(cite_df)
+      return(as.data.frame(cite_df))
     }
 
     matched <- cite_df[tolower(cite_df$source_name) == tolower(cite), ]
@@ -301,7 +301,7 @@ gmd <- function(variables = NULL, country = NULL, version = NULL,
       stop(sprintf("Source '%s' does not exist.\nTo load the list of sources to cite, use: gmd(cite = 'load')", cite))
     }
     message(matched$citation[1])
-    return(invisible(matched))
+    return(invisible(as.data.frame(matched)))
   }
 
   # ============================================================================
@@ -349,7 +349,7 @@ gmd <- function(variables = NULL, country = NULL, version = NULL,
 
       if (tolower(sources) == "load") {
         message("Imported the list of sources.")
-        return(source_df)
+        return(as.data.frame(source_df))
       }
       message("Available sources:")
       for (s in source_df$source_name) message(s)
@@ -407,6 +407,7 @@ gmd <- function(variables = NULL, country = NULL, version = NULL,
     n_vars <- ncol(df) - length(intersect(ID_COLS, colnames(df)))
     message(sprintf("Final dataset: %d observations of %d variables", nrow(df), n_vars))
     print_citation(current_version)
+    df <- as.data.frame(df)
     return(df)
   }
 
@@ -467,6 +468,7 @@ gmd <- function(variables = NULL, country = NULL, version = NULL,
     n_sources <- ncol(df) - length(intersect(ID_COLS, colnames(df)))
     message(sprintf("Final dataset: %d observations of %d sources", nrow(df), n_sources))
     print_citation(current_version)
+    df <- as.data.frame(df)
     return(df)
   }
 
@@ -522,6 +524,7 @@ gmd <- function(variables = NULL, country = NULL, version = NULL,
   }
   print_citation(current_version)
 
+  df <- as.data.frame(df)
   return(df)
 }
 
