@@ -115,11 +115,11 @@ gmd <- function(variables = NULL, country = NULL, version = NULL,
     }
     opt <- tolower(trimws(print_option))
     if (opt == "gmd") {
-      message("Müller, K., Xu, C., Lehbib, M., & Chen, Z. (2025). The Global Macro Database: A New International Macroeconomic Dataset (NBER Working Paper No. 33714).")
+      message("M\u00fcller, K., Xu, C., Lehbib, M., & Chen, Z. (2025). The Global Macro Database: A New International Macroeconomic Dataset (NBER Working Paper No. 33714).")
       return(invisible(NULL))
     }
     if (opt == "stata") {
-      message("Lehbib, M. & Müller, K. (2025). gmd: The Easy Way to Access the World's Most Comprehensive Macroeconomic Database. Working Paper.")
+      message("Lehbib, M. & M\u00fcller, K. (2025). gmd: The Easy Way to Access the World's Most Comprehensive Macroeconomic Database. Working Paper.")
       return(invisible(NULL))
     }
     stop("Invalid option for print(). valid arguments are 'GMD' or 'Stata'.")
@@ -498,7 +498,10 @@ gmd <- function(variables = NULL, country = NULL, version = NULL,
   use_fast <- isTRUE(fast) || (is.character(fast) && tolower(trimws(fast)) == "yes")
   cache_dir <- tools::R_user_dir("globalmacrodata", "cache")
   cache_file <- file.path(cache_dir, sprintf("GMD_%s.dta", current_version))
-  if (file.exists(cache_file)) {
+  # Only read the cache when fast = TRUE was explicitly requested; otherwise a
+  # cache from a previous fast = TRUE call would silently serve stale data even
+  # when the caller asked for a normal (non-cached) load.
+  if (use_fast && file.exists(cache_file)) {
     df <- haven::read_dta(cache_file)
   } else {
     main_resp <- .gmd_safe_get(data_url)
@@ -509,9 +512,11 @@ gmd <- function(variables = NULL, country = NULL, version = NULL,
     df <- haven::read_dta(raw_bytes)
     if (use_fast) {
       if (!dir.exists(cache_dir)) dir.create(cache_dir, recursive = TRUE, showWarnings = FALSE)
-      # Save the original .dta bytes verbatim so a cached read is byte-identical to a
-      # fresh download.
-      writeBin(raw_bytes, cache_file)
+      # Write to a temp file first and rename into place, so a crash or
+      # interrupted write never leaves a truncated/corrupt cache file behind.
+      tmp_file <- paste0(cache_file, ".tmp", Sys.getpid())
+      writeBin(raw_bytes, tmp_file)
+      file.rename(tmp_file, cache_file)
       message(sprintf("GMD dataset loaded and saved locally in %s.", cache_dir))
     }
   }
