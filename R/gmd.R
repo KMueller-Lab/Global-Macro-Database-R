@@ -288,7 +288,7 @@ gmd <- function(variables = NULL, country = NULL, version = NULL,
       stop("Unable to import the list of sources to cite. Check internet connection.")
     }
     cite_df <- readr::read_csv(httr2::resp_body_string(cite_resp, encoding = "UTF-8"),
-      col_types = readr::cols(source_name = readr::col_character(),
+      col_types = readr::cols(source = readr::col_character(),
                               citation = readr::col_character()))
 
     if (tolower(cite) == "load") {
@@ -296,7 +296,7 @@ gmd <- function(variables = NULL, country = NULL, version = NULL,
       return(as.data.frame(cite_df))
     }
 
-    matched <- cite_df[tolower(cite_df$source_name) == tolower(cite), ]
+    matched <- cite_df[tolower(cite_df$source) == tolower(cite), ]
     if (nrow(matched) == 0) {
       stop(sprintf("Source '%s' does not exist.\nTo load the list of sources to cite, use: gmd(cite = 'load')", cite))
     }
