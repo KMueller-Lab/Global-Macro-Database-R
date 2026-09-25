@@ -14,13 +14,16 @@ gmd(
   sources = NULL,
   cite = NULL,
   print_option = NULL,
-  fast = FALSE
+  fast = FALSE,
+  start_year = NULL,
+  end_year = NULL
 )
 }
 \arguments{
 \item{variables}{A character vector of variable names to include (e.g., \code{"rGDP"}
-or \code{c("rGDP", "unemp")}). Can also be used with \code{sources} to load
-specific variables from a given source.}
+or \code{c("rGDP", "unemp")}). Case-insensitive (e.g. \code{"rgdp"} matches
+\code{"rGDP"}). Can also be used with \code{sources} to load specific variables
+from a given source.}
 
 \item{country}{A character vector of ISO3 country codes (e.g., \code{"USA"} or
 \code{c("USA", "CHN")}). Case-insensitive.}
@@ -54,6 +57,12 @@ Python/Stata \code{print} option.}
 downloaded dataset to a local cache so subsequent calls load it from disk
 instead of re-downloading. Once cached, the file is reused automatically.
 Parity with the Python/Stata \code{fast} option.}
+
+\item{start_year}{A single number. If supplied, only observations with
+\code{year >= start_year} are returned.}
+
+\item{end_year}{A single number. If supplied, only observations with
+\code{year <= end_year} are returned.}
 }
 \value{
 A dataframe containing the requested macroeconomic data.
@@ -99,6 +108,9 @@ df <- gmd(variables = c("rGDP", "infl", "unemp"))
 
 # Load data for a specific country
 df <- gmd(country = "USA")
+
+# Restrict to a range of years
+df <- gmd(country = "USA", variables = "rGDP", start_year = 2000, end_year = 2010)
 
 # Load a specific version for reproducibility
 df <- gmd(version = "2025_01")

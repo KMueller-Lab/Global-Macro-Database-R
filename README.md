@@ -106,19 +106,6 @@ df <- gmd(
 | **sources** | character | `"load"` to load source list, `"list"` to print sources, or a source name (e.g., `"IMF_IFS"`) to load that source's data. You can combine with `variables` to load only specific variables from that source |
 | **cite** | character | `"load"` to load citation list, or a source key (e.g., `"GMD"`) to display its BibTeX |
 
-## Release schedule
-| Release Date | Details         |
-|--------------|-----------------|
-| 2025-01-30   | Initial release: 2025_01 |
-| 2025-04-01   | 2025_03         |
-| 2025-07-01   | 2025_06         |
-| 2025-10-01   | 2025_09         |
-| 2026-01-01   | 2025_12         |
-| 2026-01-25   | 2026_01         |
-| 2026-03-31   | 2026_03 (Current)        |
-| 2026-03-31   | 2026_06         |
-| 2026-03-31   | 2026_09         |
-
 ## Citation
 
 When using the Global Macro Database, please cite the following NBER Working Paper:
@@ -155,7 +142,3 @@ Please visit this [repository](https://github.com/KMueller-Lab/Global-Macro-Data
 This repository and the bundled metadata shipped with the package are available for **non-commercial use only**. By using this package, you agree to the terms in [`LICENSE`](LICENSE) and the terms of use outlined on the [GMD website](https://www.globalmacrodata.com).
 
 For license enquiries, please email [kmueller@globalmacrodata.com](mailto:kmueller@globalmacrodata.com).
-
-## Acknowledgments
-
-The development of the Global Macro Database would not have been possible without the generous funding provided by the Singapore Ministry of Education (MOE) through the PYP grants (WBS A-0003319-01-00 and A-0003319-02-00), a Tier 1 grant (A-8001749- 00-00), and the NUS Risk Management Institute (A-8002360-00-00). This financial support laid the foundation for the successful completion of this extensive project.
