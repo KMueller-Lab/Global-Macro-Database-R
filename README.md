@@ -144,7 +144,7 @@ Please visit this [repository](https://github.com/KMueller-Lab/Global-Macro-Data
 
 ## Authors
 
-*   **Mohamed Lehbib** (National University of Singapore) - [lehbib@u.nus.edu](mailto:lehbib@u.nus.edu)
+*   **[Riccardo Dal Cero](https://gravatar.com/fuzzyspeedilycbab8fc244)** (Leibniz Institute for Financial Research (SAFE)) - [dalcero@safe-frankfurt.de](mailto:dalcero@safe-frankfurt.de)
 
 ## License & Terms of Use
 
