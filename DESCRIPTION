@@ -1,11 +1,12 @@
 Package: globalmacrodata
-Title: GMD R
+Title: Global Macro Database R Package
 Version: 1.2.0
 Authors@R:
     c(person("Riccardo", "Dal Cero", email = "dalcero@safe-frankfurt.de", role = "cre"),
-      person("Mohamed", "Lehbib", email = "lehbib@u.nus.edu", role = "aut"))
-Description: This R package can download the data from Müller, Xu, Lehbib, and Chen (2025), which introduces a panel dataset of 79 macroeconomic variables across 239 countries from historical records beginning in the year 1086 until 2025, including projections through the year 2030.
-License: file LICENSE
+      person("Mohamed", "Lehbib", email = "lehbib@u.nus.edu", role = "aut"),
+      person("Karsten", "Müller", email = "kmueller@nus.edu.sg", role = "aut"))
+Description: Download and access the Global Macro Database (GMD): 79 macroeconomic variables across 243 countries, 1086-2030. Fetch cleaned data from 121+ sources (IMF, World Bank, OECD, etc.), with version control, filtering by country/variables/year, raw source-level data, and citations. No dependencies beyond standard packages.
+License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
