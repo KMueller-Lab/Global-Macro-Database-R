@@ -1,11 +1,20 @@
-# The Global Macro Database (R Package)
-<a href="https://www.globalmacrodata.com" target="_blank" rel="noopener noreferrer">
-    <img src="https://img.shields.io/badge/Website-Visit-blue?style=flat&logo=google-chrome" alt="Website Badge">
-</a>
+<h1 align="center">The Global Macro Database</h1>
+<p align="center"><strong>R Package</strong></p>
 
-[![License: Non-Commercial](https://img.shields.io/badge/License-Non--Commercial-red.svg)](LICENSE)
+<p align="center">
+  <a href="https://www.globalmacrodata.com" target="_blank" rel="noopener noreferrer">
+    <img src="https://img.shields.io/badge/%F0%9F%8C%8D%20Explore%20the%20Database-globalmacrodata.com-2563EB?style=for-the-badge&labelColor=0B1F3A&color=2563EB" alt="Explore the Global Macro Database" height="46">
+  </a>
+</p>
 
-[Link to paper](https://www.globalmacrodata.com/research-paper.html)
+<p align="center">
+  <a href="https://www.globalmacrodata.com/research-paper.html" target="_blank" rel="noopener noreferrer"><img src="https://img.shields.io/badge/Paper-Read-1E3A8A?style=flat-square&logo=readthedocs&logoColor=white" alt="Read the paper"></a>
+  <a href="https://www.globalmacrodata.com/data.html" target="_blank" rel="noopener noreferrer"><img src="https://img.shields.io/badge/Data-Download-0EA5E9?style=flat-square&logo=databricks&logoColor=white" alt="Download the data"></a>
+  <a href="https://github.com/KMueller-Lab/Global-Macro-Database-R" target="_blank" rel="noopener noreferrer"><img src="https://img.shields.io/badge/R-Package-276DC3?style=flat-square&logo=r&logoColor=white" alt="R package"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-Non--Commercial-DC2626?style=flat-square" alt="License: Non-Commercial"></a>
+</p>
+
+<p align="center"><a href="https://www.globalmacrodata.com/research-paper.html" target="_blank" rel="noopener noreferrer">Link to paper</a></p>
 
 This repository complements the paper, **Müller, Xu, Lehbib, and Chen (2025)**, which introduces a panel dataset of **79 macroeconomic variables across 243 countries** from historical records beginning in the year **1086** until **2025**, including projections through the year **2030**.
 
@@ -16,10 +25,9 @@ This repository complements the paper, **Müller, Xu, Lehbib, and Chen (2025)**,
 - **Harmonized Data**: Resolves inconsistencies and splices all available data together.
 - **Scheduled Updates**: Regular releases ensure data reliability.
 - **Full Transparency**: All code is open source and available in this repository.
-- **Accessible Formats**: Provided in `.dta`, `.csv` and as **<a href="https://github.com/KMueller-Lab/Global-Macro-Database-Stata" target="_blank" rel="noopener noreferrer">Stata</a>
-/<a href="https://github.com/KMueller-Lab/Global-Macro-Database-Python" target="_blank" rel="noopener noreferrer">Python</a>/<a href="https://github.com/KMueller-Lab/Global-Macro-Database-R" target="_blank" rel="noopener noreferrer">R</a> package**.
+- **Accessible Formats**: Provided in `.dta`, `.csv` and as **<a href="https://github.com/KMueller-Lab/Global-Macro-Database-Stata" target="_blank" rel="noopener noreferrer">Stata</a>/<a href="https://github.com/KMueller-Lab/Global-Macro-Database-Python" target="_blank" rel="noopener noreferrer">Python</a>/<a href="https://github.com/KMueller-Lab/Global-Macro-Database-R" target="_blank" rel="noopener noreferrer">R</a> package**.
 
-## Data access
+## Installation
 
 <a href="https://www.globalmacrodata.com/data.html" target="_blank" rel="noopener noreferrer">Download via website</a>
 
@@ -30,7 +38,8 @@ install.packages("remotes")
 remotes::install_github("KMueller-Lab/Global-Macro-Database-R")
 ```
 
-**How to use (examples)**
+## Usage
+
 ```R
 library(globalmacrodata)
 
