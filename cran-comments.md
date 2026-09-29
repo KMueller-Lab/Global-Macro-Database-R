@@ -9,7 +9,6 @@ This is the first CRAN submission of the Global Macro Database R package (GMD R)
 ### Changes in v1.2.0
 
 - Fixed: moved `haven` from Suggests to Imports (required for reading .dta files)
-- Corrected: 239 countries (previously stated as 243)
 - Aligned: version number with Python and MATLAB implementations (v1.2.0)
 
 ### Installation tested
