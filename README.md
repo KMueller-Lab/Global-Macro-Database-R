@@ -146,6 +146,10 @@ Please visit this [repository](https://github.com/KMueller-Lab/Global-Macro-Data
 
 *   **Mohamed Lehbib** (National University of Singapore) - [lehbib@u.nus.edu](mailto:lehbib@u.nus.edu)
 
+## Maintainer
+
+*   **Riccardo Dal Cero** (Leibniz Institute for Financial Research (SAFE)) - [dalcero@safe-frankfurt.de](mailto:dalcero@safe-frankfurt.de)
+
 ## License & Terms of Use
 
 This repository and the bundled metadata shipped with the package are available for **non-commercial use only**. By using this package, you agree to the terms in [`LICENSE`](LICENSE) and the terms of use outlined on the [GMD website](https://www.globalmacrodata.com).
