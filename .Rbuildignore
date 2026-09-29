@@ -10,4 +10,6 @@
 ^\.gitignore$
 ^\.Rbuildignore$
 ^\.Rhistory$
+^\.claude$
+^reproduce_pr9_issues\.R$
 
