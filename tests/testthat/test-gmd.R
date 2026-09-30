@@ -94,6 +94,7 @@ test_that("CS source names map to <ISO3>_<n> files and CS<n> column prefixes", {
 
 test_that("CS source loads <ISO3>_<n>.dta and selects CS<n>_ columns", {
   skip_on_cran()
+  skip_if_not_installed("testthat", "3.1.7") # local_mocked_bindings()
 
   path <- tempfile(fileext = ".dta")
   haven::write_dta(data.frame(ISO3 = "ITA", year = 1900, CS10_CPI = 1, CS10_nGDP = 2), path)
