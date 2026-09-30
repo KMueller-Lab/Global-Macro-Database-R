@@ -29,7 +29,7 @@ from a given source.}
 \code{c("USA", "CHN")}). Case-insensitive.}
 
 \item{version}{A string specifying which version of the dataset to load (e.g.,
-\code{"2025_01"}). Use \code{"current"} to display the current version, or
+\code{"2026_09"}). Use \code{"current"} to display the current version, or
 \code{"list"} to see all available versions.}
 
 \item{raw}{A logical. If \code{TRUE}, load all raw data sources for a single
@@ -71,7 +71,7 @@ A dataframe containing the requested macroeconomic data.
 This function downloads and loads the Global Macro Database (GMD), the world's
 most comprehensive repository of macroeconomic statistics. Users can specify which
 version to load, which variables to keep, and filter for specific countries. Users
-can also download the underlying data, which means easy access to hundreds of
+can also download the underlying data, which means easy access to the 167
 cleaned data sources from the original providers. The dataset is updated quarterly,
 with occasional patches; versions follow the naming convention YYYY_MM.
 }
@@ -113,7 +113,7 @@ df <- gmd(country = "USA")
 df <- gmd(country = "USA", variables = "rGDP", start_year = 2000, end_year = 2010)
 
 # Load a specific version for reproducibility
-df <- gmd(version = "2025_01")
+df <- gmd(version = "2026_09")
 
 # List all available versions
 gmd(version = "list")
