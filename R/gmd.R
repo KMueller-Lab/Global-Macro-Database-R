@@ -3,7 +3,7 @@
 #' This function downloads and loads the Global Macro Database (GMD), the world's
 #' most comprehensive repository of macroeconomic statistics. Users can specify which
 #' version to load, which variables to keep, and filter for specific countries. Users
-#' can also download the underlying data, which means easy access to hundreds of
+#' can also download the underlying data, which means easy access to the 167
 #' cleaned data sources from the original providers. The dataset is updated quarterly,
 #' with occasional patches; versions follow the naming convention YYYY_MM.
 #'
@@ -17,7 +17,7 @@
 #' @param country A character vector of ISO3 country codes (e.g., \code{"USA"} or
 #'   \code{c("USA", "CHN")}). Case-insensitive.
 #' @param version A string specifying which version of the dataset to load (e.g.,
-#'   \code{"2025_01"}). Use \code{"current"} to display the current version, or
+#'   \code{"2026_09"}). Use \code{"current"} to display the current version, or
 #'   \code{"list"} to see all available versions.
 #' @param raw A logical. If \code{TRUE}, load all raw data sources for a single
 #'   specified variable. Requires specifying exactly one variable.
@@ -59,7 +59,7 @@
 #' df <- gmd(country = "USA", variables = "rGDP", start_year = 2000, end_year = 2010)
 #'
 #' # Load a specific version for reproducibility
-#' df <- gmd(version = "2025_01")
+#' df <- gmd(version = "2026_09")
 #'
 #' # List all available versions
 #' gmd(version = "list")

@@ -5,7 +5,7 @@ Authors@R:
     c(person("Riccardo", "Dal Cero", email = "dalcero@safe-frankfurt.de", role = "cre"),
       person("Mohamed", "Lehbib", email = "lehbib@u.nus.edu", role = "aut"),
       person("Karsten", "Müller", email = "kmueller@nus.edu.sg", role = "aut"))
-Description: Download and access the Global Macro Database (GMD): 79 macroeconomic variables across 243 countries, 1086-2030. Fetch cleaned data from 121+ sources (IMF, World Bank, OECD, etc.), with version control, filtering by country/variables/year, raw source-level data, and citations. No dependencies beyond standard packages.
+Description: Download and access the Global Macro Database (GMD): 46 macroeconomic variables (77 series) across 239 countries and territories, 1086-2025 with forecasts through 2031. Fetch cleaned data from 167 sources (IMF, World Bank, OECD, etc.), with version control, filtering by country/variables/year, raw source-level data, and citations. No dependencies beyond standard packages.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
