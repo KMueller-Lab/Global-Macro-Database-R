@@ -21,6 +21,15 @@
   )
 }
 
+# Country sources are listed as CS<n>_<ISO3> (e.g. "CS10_ITA") but stored as
+# <ISO3>_<n>.dta ("ITA_10.dta"), and their data columns keep the CS<n> prefix
+# ("CS10_CPI"). Return the file name and column prefix for a source name.
+.gmd_source_names <- function(source) {
+  m <- regmatches(source, regexec("^CS([0-9]+)_([A-Za-z]{3})$", source, ignore.case = TRUE))[[1]]
+  if (length(m) == 0) return(list(file = source, prefix = source))
+  list(file = paste0(toupper(m[3]), "_", m[2]), prefix = paste0("CS", m[2]))
+}
+
 .gmd_load_versions_df <- function() {
   versions_url <- "https://gmd-releases.s3.ap-southeast-2.amazonaws.com/data/helpers/versions.csv"
 

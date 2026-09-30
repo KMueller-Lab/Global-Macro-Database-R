@@ -427,7 +427,8 @@ gmd <- function(variables = NULL, country = NULL, version = NULL,
     }
 
     sources <- trimws(sources)
-    source_resp <- .gmd_safe_get(paste0(base_url, "/clean/combined/", sources, ".dta"), quiet = TRUE)
+    src <- .gmd_source_names(sources)
+    source_resp <- .gmd_safe_get(paste0(base_url, "/clean/combined/", src$file, ".dta"), quiet = TRUE)
 
     # Case-insensitive fallback
     if (is.null(source_resp)) {
@@ -440,7 +441,8 @@ gmd <- function(variables = NULL, country = NULL, version = NULL,
       matched_source <- sl_df$source_name[tolower(sl_df$source_name) == tolower(sources)]
       if (length(matched_source) == 1) {
         sources <- matched_source
-        source_resp <- .gmd_safe_get(paste0(base_url, "/clean/combined/", sources, ".dta"), quiet = TRUE)
+        src <- .gmd_source_names(sources)
+        source_resp <- .gmd_safe_get(paste0(base_url, "/clean/combined/", src$file, ".dta"), quiet = TRUE)
       }
       if (is.null(source_resp)) {
         stop(sprintf("Invalid source name: %s\nTo see the list of sources, use: gmd(sources = 'list')", sources))
@@ -451,7 +453,7 @@ gmd <- function(variables = NULL, country = NULL, version = NULL,
     df <- haven::read_dta(httr2::resp_body_raw(source_resp))
 
     if (!is.null(variables)) {
-      source_vars <- paste0(sources, "_", variables)
+      source_vars <- paste0(src$prefix, "_", variables)
       # Match source-variable columns case-insensitively (parity with the main
       # path, which canonicalizes variable casing) and return the canonical
       # column names actually present in the data.
@@ -460,7 +462,7 @@ gmd <- function(variables = NULL, country = NULL, version = NULL,
         all_data_cols <- setdiff(colnames(df), ID_COLS)
         stop(sprintf("This source doesn't have data on %s. It has data on: %s",
                     paste(variables, collapse = ", "),
-                    paste(gsub(paste0("^", sources, "_"), "", all_data_cols), collapse = ", ")))
+                    paste(gsub(paste0("^", src$prefix, "_"), "", all_data_cols), collapse = ", ")))
       }
       id_cols <- intersect(ID_COLS, colnames(df))
       df <- df[, c(id_cols, existing), drop = FALSE]
