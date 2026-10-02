@@ -79,6 +79,42 @@ test_that("raw with multiple variables fails without network", {
   expect_error(gmd(variables = c("rGDP", "infl"), raw = TRUE))
 })
 
+test_that("CS source names map to <ISO3>_<n> files and CS<n> column prefixes", {
+  source_names <- globalmacrodata:::.gmd_source_names
+
+  expect_identical(source_names("CS1_ARG"), list(file = "ARG_1", prefix = "CS1"))
+  expect_identical(source_names("CS10_ITA"), list(file = "ITA_10", prefix = "CS10"))
+  expect_identical(source_names("cs10_ita"), list(file = "ITA_10", prefix = "CS10"))
+  expect_identical(source_names("CS123_usa"), list(file = "USA_123", prefix = "CS123"))
+  for (s in c("IMF_WEO", "AAL", "CatSol", "Mitchell", "BoCBoE", "CEPII",
+              "ITA_10", "ARG_1", "CS_ARG", "CS1_AR", "CS1_ARGX")) {
+    expect_identical(source_names(s), list(file = s, prefix = s))
+  }
+})
+
+test_that("CS source loads <ISO3>_<n>.dta and selects CS<n>_ columns", {
+  skip_on_cran()
+  skip_if_not_installed("testthat", "3.1.7") # local_mocked_bindings()
+
+  path <- tempfile(fileext = ".dta")
+  haven::write_dta(data.frame(ISO3 = "ITA", year = 1900, CS10_CPI = 1, CS10_nGDP = 2), path)
+  body <- readBin(path, "raw", file.size(path))
+  unlink(path)
+  requested <- character(0)
+  local_mocked_bindings(
+    .gmd_safe_get = function(url, quiet = FALSE) {
+      requested <<- c(requested, url)
+      if (endsWith(url, "/clean/combined/ITA_10.dta")) httr2::response(200, body = body) else NULL
+    },
+    .package = "globalmacrodata"
+  )
+
+  df <- gmd(sources = "cs10_ita", variables = "cpi")
+  expect_identical(names(df), c("ISO3", "year", "CS10_CPI"))
+  expect_false(any(grepl("CS10_ITA", requested, ignore.case = TRUE)))
+  expect_error(gmd(sources = "CS10_ITA", variables = "rGDP"), "It has data on: CPI, nGDP")
+})
+
 # ==============================================================================
 # Online tests — basic functionality
 # ==============================================================================
@@ -223,6 +259,22 @@ test_that("source with variables works", {
   df <- gmd(sources = "IMF_WEO", variables = "nGDP")
   expect_s3_class(df, "data.frame")
   expect_gt(nrow(df), 0)
+})
+
+test_that("CS source names work for any slot number", {
+  skip_on_cran()
+  skip_if_offline()
+
+  df <- gmd(sources = "CS10_ITA")
+  expect_gt(nrow(df), 0)
+  expect_true("CS10_CPI" %in% names(df))
+  expect_identical(dim(gmd(sources = "cs10_ita")), dim(df))
+  expect_identical(dim(gmd(sources = "ITA_10")), dim(df))
+  expect_gt(nrow(gmd(sources = "CS1_ARG")), 0)
+
+  df_cpi <- gmd(sources = "CS10_ITA", variables = "CPI")
+  expect_true("CS10_CPI" %in% names(df_cpi))
+  expect_false("CS10_nGDP" %in% names(df_cpi))
 })
 
 test_that("source with country filter works", {
