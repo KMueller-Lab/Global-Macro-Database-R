@@ -1,6 +1,9 @@
-## R CMD check results
+## Resubmission
 
-0 errors | 0 warnings | 0 notes
+This is a resubmission. In this version we have:
+
+- Replaced the non-standard license with the MIT license.
+- Added the DOI for the reference in the Description field.
 
 ## Notes
 
